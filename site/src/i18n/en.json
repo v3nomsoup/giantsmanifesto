@@ -1,0 +1,59 @@
+{
+  "site": {
+    "name": "The Shoulders of Giants Manifesto",
+    "shortName": "Shoulders of Giants",
+    "description": "The machines that will shape our century were built from all of us. They must belong to all of us."
+  },
+  "a11y": {
+    "skip": "Skip to content",
+    "mainNav": "Main",
+    "footerNav": "Footer",
+    "toc": "Contents"
+  },
+  "nav": {
+    "manifesto": "Manifesto",
+    "changelog": "Changelog",
+    "contact": "Contact"
+  },
+  "footer": {
+    "about": "Who's behind this",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "imprint": "Imprint",
+    "source": "Source on GitHub"
+  },
+  "home": {
+    "readManifesto": "Read the full manifesto",
+    "version": "Version {version}",
+    "shapeTitle": "Shape it",
+    "shapeText": "This is a living document. Criticism, ideas and improvements shape each new version.",
+    "shapeLink": "Open an issue or pull request on GitHub",
+    "aboutTitle": "Who's behind this",
+    "aboutInitiator": "The manifesto was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
+    "aboutProcess": "It belongs to everyone who stands behind it. Feedback flows into new versions, and the changelog records what changed and why."
+  },
+  "manifesto": {
+    "title": "Manifesto",
+    "version": "Version {version}",
+    "shapeText": "Something missing or wrong? Help shape the next version.",
+    "shapeLink": "Give feedback on GitHub"
+  },
+  "changelog": {
+    "title": "Changelog"
+  },
+  "contact": {
+    "title": "Contact",
+    "intro": "Questions, press enquiries or ideas: write to {email}.",
+    "feedback": "Feedback on the text itself is welcome on {github}.",
+    "initiator": "Initiated by Philipp Eckert."
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "imprint": "Imprint"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "This page does not exist.",
+    "home": "Back to the homepage"
+  }
+}
