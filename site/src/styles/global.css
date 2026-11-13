@@ -237,7 +237,6 @@ article.prose :is(p, li, blockquote) {
 }
 
 .hero-quote {
-  max-width: 30rem;
   margin-block: 0 2rem;
 }
 
@@ -281,7 +280,9 @@ article.prose :is(p, li, blockquote) {
   .hero-head {
     display: flex;
     align-items: flex-start;
-    min-height: calc(17.5rem * 340 / 380);
+    /* Down to the drawing's base points (y 323 of 340, box lifted by 1rem),
+       then the same 2rem gap the quote keeps to the values below it. */
+    min-height: calc(17.5rem * 323 / 380 - 1rem);
     margin-bottom: 2rem;
   }
 
