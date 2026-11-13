@@ -26,7 +26,9 @@ export function renderMarkdown(source: string, options: RenderOptions = {}): Ren
       heading({ tokens, depth, text }) {
         const id = slugger.slug(text);
         toc.push({ depth, text, id });
-        const inline = this.parser.parseInline(tokens);
+        const inline = this.parser
+          .parseInline(tokens)
+          .replace(/^([IVXLC]+\.)\s+/, '<span class="numeral">$1</span> ');
         const content = options.headingLinks
           ? `<a class="heading-link" href="#${id}">${inline}</a>`
           : inline;

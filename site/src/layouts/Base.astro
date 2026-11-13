@@ -14,9 +14,11 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  /** Widen header, main and footer for pages with a side column. */
+  wide?: boolean;
 }
 
-const { lang, title, description, noindex = false } = Astro.props;
+const { lang, title, description, noindex = false, wide = false } = Astro.props;
 const siteName = t(lang, 'site.name');
 const pageTitle = title ? `${title} · ${siteName}` : siteName;
 const metaDescription = description ?? t(lang, 'site.description');
@@ -46,7 +48,7 @@ const canonical = new URL(canonicalPath, Astro.site);
     <meta property="og:description" content={metaDescription} />
     {!noindex && <meta property="og:url" content={canonical} />}
   </head>
-  <body>
+  <body class={wide ? 'wide' : undefined}>
     <a class="skip-link" href="#main">{t(lang, 'a11y.skip')}</a>
     <Header lang={lang} />
     <main id="main"><slot /></main>

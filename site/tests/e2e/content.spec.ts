@@ -102,3 +102,44 @@ test('legal pages render their headings', async ({ page }) => {
   await page.goto('/en/imprint');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Imprint');
 });
+
+test.describe('manifesto reading layout', () => {
+  test('TOC marks the section in view on wide screens', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/en/manifesto#preamble');
+    await page.locator('#call-to-action').scrollIntoViewIfNeeded();
+    await expect(page.locator('nav.toc a[href="#call-to-action"]')).toHaveAttribute(
+      'aria-current',
+      'location',
+    );
+    await expect(page.locator('nav.toc a[aria-current]')).toHaveCount(1);
+  });
+
+  test('TOC stays in view while reading', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/en/manifesto');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const toc = page.locator('nav.toc');
+    await expect(toc).toBeVisible();
+    const box = await toc.boundingBox();
+    expect(box?.y).toBeGreaterThanOrEqual(0);
+    await expect(page.locator('nav.toc a[aria-current]')).toHaveCount(1);
+  });
+
+  test('TOC sits above the text on phones', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto('/en/manifesto');
+    const toc = await page.locator('nav.toc').boundingBox();
+    const h2 = await page.locator('article h2').first().boundingBox();
+    expect((toc?.y ?? 0) + (toc?.height ?? 0)).toBeLessThanOrEqual(h2?.y ?? 0);
+  });
+
+  test.describe('without JavaScript', () => {
+    test.use({ javaScriptEnabled: false });
+    test('TOC links still navigate', async ({ page }) => {
+      await page.goto('/en/manifesto');
+      await page.locator('nav.toc').getByRole('link', { name: 'Preamble' }).click();
+      await expect(page).toHaveURL(/#preamble$/);
+    });
+  });
+});

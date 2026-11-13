@@ -11,10 +11,12 @@ const lang = Astro.params.lang as Locale;
 const manifesto = loadManifesto();
 ---
 
-<Base lang={lang} title={t(lang, 'manifesto.title')}>
-  <article class="prose">
+<Base lang={lang} title={t(lang, 'manifesto.title')} wide>
+  <header class="manifesto-head">
     <h1>{manifesto.title}</h1>
     <p class="meta">{t(lang, 'manifesto.version', { version: manifesto.version })}</p>
+  </header>
+  <div class="manifesto-layout">
     <nav class="toc" aria-label={t(lang, 'a11y.toc')}>
       <ol>
         {manifesto.toc.map((entry) => (
@@ -24,10 +26,54 @@ const manifesto = loadManifesto();
         ))}
       </ol>
     </nav>
-    <Fragment set:html={manifesto.html} />
-    <aside class="callout">
-      <p>{t(lang, 'manifesto.shapeText')}</p>
-      <p><a href={`${GITHUB_URL}/issues`}>{t(lang, 'manifesto.shapeLink')}</a></p>
-    </aside>
-  </article>
+    <article class="prose">
+      <Fragment set:html={manifesto.html} />
+      <aside class="callout">
+        <p>{t(lang, 'manifesto.shapeText')}</p>
+        <p><a href={`${GITHUB_URL}/issues`}>{t(lang, 'manifesto.shapeLink')}</a></p>
+      </aside>
+    </article>
+  </div>
 </Base>
+
+<script is:inline>
+  (function () {
+    var links = document.querySelectorAll('nav.toc a[href^="#"]');
+    if (!links.length) return;
+    var items = [];
+    links.forEach(function (a) {
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = document.getElementById(id);
+      if (el) items.push({ a: a, el: el });
+    });
+    var current = null;
+    function update() {
+      var line = window.innerHeight * 0.5;
+      var active = items[0];
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom) active = items[items.length - 1];
+      else
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].el.getBoundingClientRect().top <= line) active = items[i];
+          else break;
+        }
+      if (!active || active === current) return;
+      if (current) current.a.removeAttribute('aria-current');
+      active.a.setAttribute('aria-current', 'location');
+      current = active;
+    }
+    var queued = false;
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () {
+        queued = false;
+        update();
+      });
+    }
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    window.addEventListener('hashchange', schedule);
+  })();
+</script>
