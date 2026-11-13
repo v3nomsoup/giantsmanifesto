@@ -276,20 +276,25 @@ article.prose :is(p, li, blockquote) {
 }
 
 @media (min-width: 54rem) {
-  /* The headline is centred on the drawing's height, so the drawing sits
-     centred beside it and the quote starts below both. */
+  /* The head is as tall as the drawing, so the quote starts below it;
+     the headline starts at the top, level with the drawing's apex. */
   .hero-head {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     min-height: calc(17.5rem * 340 / 380);
     margin-bottom: 2rem;
+  }
+
+  /* Line the headline's cap height up with the drawing's apex. */
+  .hero-title {
+    padding-top: 0.6rem;
   }
 
   .hero-drawing {
     display: block;
     position: absolute;
-    /* The curves span y 60–320 of the 340 viewBox, so their visual centre sits
-       about 1rem below the box centre; lift the box to centre the lines. */
+    /* The apex sits at y 60 of the 340 viewBox; lifting the box by 1rem
+       brings it level with the headline's first line. */
     top: -1rem;
     right: 0;
     width: 17.5rem;
