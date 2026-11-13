@@ -1,0 +1,31 @@
+{
+  "name": "giantsmanifesto-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "node dist/server/entry.mjs",
+    "typecheck": "astro check",
+    "lint": "biome check src/lib src/i18n tests",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.12",
+    "astro": "^7.4.11",
+    "github-slugger": "^2.0.0",
+    "marked": "^18.2.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
+    "@biomejs/biome": "^2.6.7",
+    "@playwright/test": "^1.65.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.12"
+  }
+}
