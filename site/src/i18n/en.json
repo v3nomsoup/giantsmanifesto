@@ -31,8 +31,8 @@
     "valuesLead": "We value:",
     "version": "Version {version}",
     "aboutTitle": "Who's behind this",
-    "aboutInitiator": "The manifesto was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
-    "aboutProcess": "It belongs to everyone who stands behind it. Feedback flows into new versions, and the changelog records what changed and why."
+    "aboutInitiator": "It was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
+    "aboutProcess": "The manifesto belongs to everyone who stands behind it. Feedback flows into new versions, and the changelog records what changed and why."
   },
   "manifesto": {
     "title": "Manifesto",
