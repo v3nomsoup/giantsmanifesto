@@ -1,0 +1,16 @@
+---
+import { type Locale, localeStaticPaths, t } from '../../i18n';
+import Base from '../../layouts/Base.astro';
+import { renderMarkdown } from '../../lib/markdown';
+import { readSiteFile } from '../../lib/repo-files';
+
+export const prerender = true;
+export const getStaticPaths = localeStaticPaths;
+
+const lang = Astro.params.lang as Locale;
+const { html } = renderMarkdown(readSiteFile(`content/legal/privacy.${lang}.md`));
+---
+
+<Base lang={lang} title={t(lang, 'legal.privacy')}>
+  <article class="prose" set:html={html} />
+</Base>

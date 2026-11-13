@@ -40,3 +40,42 @@ test('unknown locale returns 404', async ({ page }) => {
   expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
 });
+
+test('homepage shows the intro, a link to the full text and who is behind it', async ({ page }) => {
+  await page.goto('/en/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'The Shoulders of Giants Manifesto',
+  );
+  await expect(page.getByText('Common good', { exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Read the full manifesto' }).click();
+  await expect(page).toHaveURL(/\/en\/manifesto$/);
+});
+
+test('about section names the initiator in a personal capacity', async ({ page }) => {
+  await page.goto('/en/#about');
+  const about = page.locator('#about');
+  await expect(about).toContainText('in a personal capacity');
+  await expect(about.getByRole('link', { name: 'Philipp Eckert' })).toHaveAttribute(
+    'href',
+    'https://eckert.rocks',
+  );
+  await expect(about.getByRole('link', { name: 'Computerkunst e.V.' })).toHaveAttribute(
+    'href',
+    'https://computerkunst.info',
+  );
+});
+
+test('contact page shows the contact address', async ({ page }) => {
+  await page.goto('/en/contact');
+  await expect(page.getByRole('link', { name: 'contact@giantsmanifesto.org' })).toHaveAttribute(
+    'href',
+    'mailto:contact@giantsmanifesto.org',
+  );
+});
+
+test('legal pages render their headings', async ({ page }) => {
+  await page.goto('/en/privacy');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Privacy policy');
+  await page.goto('/en/imprint');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Imprint');
+});
