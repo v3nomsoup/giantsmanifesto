@@ -28,13 +28,16 @@ export function parseIntro(intro: string): ManifestoIntro {
     new Error(
       `${MANIFESTO_FILE}: intro needs a quote, a bold core statement and at least one "- **Value** over …" line`,
     );
-  const lines = intro.split('\n');
+  const lines = intro.split(/\r?\n/);
 
   const quoteLines = lines.filter((line) => line.startsWith('>'));
   const quote = quoteLines.map((line) => line.replace(/^>\s?/, '')).join('\n\n');
   if (!quote.trim()) throw fail();
 
-  const statementMatch = intro.match(/^\*\*(.+)\*\*[ \t]*$/m);
+  const statementMatch = lines
+    .map((line) => line.trimEnd())
+    .join('\n')
+    .match(/^\*\*(.+)\*\*$/m);
   if (!statementMatch) throw fail();
 
   const values: ManifestoValue[] = [];

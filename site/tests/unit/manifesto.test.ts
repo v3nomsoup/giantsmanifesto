@@ -88,6 +88,13 @@ describe('parseIntro', () => {
     expect(parsed.quoteHtml).toContain('Someone');
   });
 
+  it('tolerates CRLF line endings', () => {
+    const parsed = parseIntro(intro.replace(/\n/g, '\r\n'));
+    expect(parsed.statement).toBe('Built from all of us.');
+    expect(parsed.values).toEqual([{ term: 'Common good', rest: 'over private profit' }]);
+    expect(parsed.quoteHtml).toContain('A quote');
+  });
+
   it('is part of the parsed manifesto', () => {
     expect(parseManifesto(fixture).intro.statement).toBe('Built from all of us.');
   });

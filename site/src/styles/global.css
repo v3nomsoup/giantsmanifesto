@@ -10,7 +10,7 @@
   --btn-fg: #ffffff;
   --font-ui: "Hanken Grotesk", system-ui, sans-serif;
   --font-text: "Literata", Georgia, serif;
-  --measure: 42rem;
+  --measure: 52rem;
   color-scheme: light;
 }
 
@@ -92,7 +92,7 @@ main,
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   padding-block: 1.25rem;
   border-bottom: 1px solid var(--line);
@@ -148,6 +148,20 @@ main,
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.site-header nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-header nav a:hover,
+.site-header nav a:focus-visible {
+  text-decoration: underline;
+}
+
+.site-header nav a[aria-current="page"] {
+  color: var(--fg);
 }
 
 [aria-current="page"] {
@@ -222,7 +236,7 @@ article.prose :is(p, li, blockquote) {
 }
 
 .hero-quote {
-  max-width: 34rem;
+  max-width: 30rem;
   margin-block: 0 2rem;
 }
 
@@ -248,23 +262,21 @@ article.prose :is(p, li, blockquote) {
   list-style: none;
   font-family: var(--font-ui);
   font-size: 1.2rem;
+  line-height: 1.85;
 }
 
 .values li {
-  padding-block: 0.4rem;
+  margin: 0;
+  padding: 0;
 }
 
 .values span {
   color: var(--faint);
 }
 
-@media (min-width: 48rem) {
-  .hero {
-    width: min(48rem, 50vw + 18rem);
-  }
-
+@media (min-width: 54rem) {
   .hero-title {
-    max-width: min(13em, calc(100% - 13rem));
+    max-width: min(13em, calc(100% - 20rem));
   }
 
   .hero-drawing {
@@ -272,7 +284,7 @@ article.prose :is(p, li, blockquote) {
     position: absolute;
     top: 0;
     right: 0;
-    width: 12rem;
+    width: 17.5rem;
     height: auto;
   }
 }
