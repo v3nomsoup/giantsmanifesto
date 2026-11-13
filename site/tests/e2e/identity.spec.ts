@@ -56,7 +56,12 @@ for (const size of [
         for (let i = 0; i <= 100; i++) {
           const p = path.getPointAtLength((length * i) / 100).matrixTransform(ctm);
           // getScreenCTM and getClientRects both use viewport coordinates.
-          if (lines.some((r) => p.x >= r.left - 4 && p.x <= r.right + 4 && p.y >= r.top && p.y <= r.bottom)) hits++;
+          if (
+            lines.some(
+              (r) => p.x >= r.left - 4 && p.x <= r.right + 4 && p.y >= r.top && p.y <= r.bottom,
+            )
+          )
+            hits++;
         }
       }
       return hits;

@@ -18,8 +18,10 @@ const initiator = t(lang, 'home.aboutInitiator', {
 
 <Base lang={lang}>
   <section class="hero">
-    <Convergence variant="full" class="hero-drawing" />
-    <h1 class="hero-title">{manifesto.intro.statement}</h1>
+    <div class="hero-head">
+      <Convergence variant="full" class="hero-drawing" />
+      <h1 class="hero-title">{manifesto.intro.statement}</h1>
+    </div>
     <blockquote class="hero-quote" set:html={manifesto.intro.quoteHtml} />
     <p class="values-lead">{t(lang, 'home.valuesLead')}</p>
     <ul class="values">

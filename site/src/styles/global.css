@@ -222,16 +222,14 @@ article.prose :is(p, li, blockquote) {
   line-height: 1.7;
 }
 
-.hero {
+.hero-head {
   position: relative;
-}
-
-.hero > :not(.hero-drawing) {
-  position: relative;
+  margin-bottom: 1.5rem;
 }
 
 .hero-title {
-  margin-bottom: 1.5rem;
+  position: relative;
+  margin-bottom: 0;
 }
 
 .hero-drawing {
@@ -278,12 +276,21 @@ article.prose :is(p, li, blockquote) {
 }
 
 @media (min-width: 54rem) {
-  /* The drawing sits top right; its base reaches down beside the quote.
-     The balanced headline ends before the curves get there. */
+  /* The headline is centred on the drawing's height, so the drawing sits
+     centred beside it and the quote starts below both. */
+  .hero-head {
+    display: flex;
+    align-items: center;
+    min-height: calc(17.5rem * 340 / 380);
+    margin-bottom: 2rem;
+  }
+
   .hero-drawing {
     display: block;
     position: absolute;
-    top: 0;
+    /* The curves span y 60–320 of the 340 viewBox, so their visual centre sits
+       about 1rem below the box centre; lift the box to centre the lines. */
+    top: -1rem;
     right: 0;
     width: 17.5rem;
     height: auto;
