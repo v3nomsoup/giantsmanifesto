@@ -52,4 +52,11 @@ describe('renderMarkdown', () => {
     expect(renderMarkdown('## Preamble', { headingLinks: true }).html).not.toContain('numeral');
     expect(renderMarkdown('## Vision of it').html).not.toContain('numeral');
   });
+
+  it('only treats valid roman numerals as numerals', () => {
+    expect(renderMarkdown('### CIVIL. Rights').html).not.toContain('numeral');
+    expect(renderMarkdown('### VI. A fair path').html).toContain(
+      '<span class="numeral">VI.</span> A fair path',
+    );
+  });
 });

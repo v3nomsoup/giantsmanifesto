@@ -28,7 +28,10 @@ export function renderMarkdown(source: string, options: RenderOptions = {}): Ren
         toc.push({ depth, text, id });
         const inline = this.parser
           .parseInline(tokens)
-          .replace(/^([IVXLC]+\.)\s+/, '<span class="numeral">$1</span> ');
+          .replace(
+            /^((?=[IVXLC])(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})\.)\s+/,
+            '<span class="numeral">$1</span> ',
+          );
         const content = options.headingLinks
           ? `<a class="heading-link" href="#${id}">${inline}</a>`
           : inline;
