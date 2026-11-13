@@ -10,6 +10,8 @@ Philipp Eckert, contact@giantsmanifesto.org. Postal address: see the [imprint](/
 
 This website sets no cookies, uses no analytics and loads nothing from third parties.
 
+If you switch between light and dark theme, your choice is stored in your browser's local storage. It is never sent to our server.
+
 To deliver pages, the web server processes your IP address and the requested page. The application does not write IP addresses to its logs.
 
 ## Hosting

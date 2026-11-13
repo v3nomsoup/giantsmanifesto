@@ -1,8 +1,9 @@
 ---
 import { type Locale, localePath, localeStaticPaths, t } from '../../i18n';
+import Convergence from '../../components/Convergence.astro';
 import Base from '../../layouts/Base.astro';
 import { loadManifesto } from '../../lib/manifesto';
-import { COMPUTERKUNST_URL, GITHUB_URL, INITIATOR_URL } from '../../lib/site';
+import { COMPUTERKUNST_URL, INITIATOR_URL } from '../../lib/site';
 
 export const prerender = true;
 export const getStaticPaths = localeStaticPaths;
@@ -16,24 +17,31 @@ const initiator = t(lang, 'home.aboutInitiator', {
 ---
 
 <Base lang={lang}>
-  <section class="prose">
-    <h1>{manifesto.title}</h1>
-    <Fragment set:html={manifesto.introHtml} />
+  <section class="hero">
+    <div class="hero-head">
+      <Convergence variant="full" class="hero-drawing" />
+      <h1 class="hero-title">{manifesto.intro.statement}</h1>
+    </div>
+    <blockquote class="hero-quote" set:html={manifesto.intro.quoteHtml} />
+    <p class="values-lead">{t(lang, 'home.valuesLead')}</p>
+    <ul class="values">
+      {
+        manifesto.intro.values.map((value) => (
+          <li>
+            <strong>{value.term}</strong> <span>{value.rest}</span>
+          </li>
+        ))
+      }
+    </ul>
     <p>
       <a class="button" href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
     </p>
     <p class="meta">{t(lang, 'home.version', { version: manifesto.version })}</p>
   </section>
 
-  <section class="prose" aria-labelledby="shape-title">
-    <h2 id="shape-title">{t(lang, 'home.shapeTitle')}</h2>
-    <p>{t(lang, 'home.shapeText')}</p>
-    <p><a href={`${GITHUB_URL}/issues`}>{t(lang, 'home.shapeLink')}</a></p>
-  </section>
-
   <section class="prose" id="about" aria-labelledby="about-title">
     <h2 id="about-title">{t(lang, 'home.aboutTitle')}</h2>
-    <p set:html={initiator} />
     <p>{t(lang, 'home.aboutProcess')}</p>
+    <p set:html={initiator} />
   </section>
 </Base>

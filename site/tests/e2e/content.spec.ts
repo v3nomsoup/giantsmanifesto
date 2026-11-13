@@ -60,13 +60,17 @@ test('unknown locale returns 404', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
 });
 
-test('homepage shows the intro, a link to the full text and who is behind it', async ({ page }) => {
+test('homepage shows the core statement, values, a link to the full text and who is behind it', async ({
+  page,
+}) => {
   await page.goto('/en/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'The Shoulders of Giants Manifesto',
+    /^The machines that will shape our century/,
   );
-  await expect(page.getByText('Common good', { exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Read the full manifesto' }).click();
+  const common = page.locator('.values li', { hasText: 'Common good' });
+  await expect(common.getByText('Common good', { exact: true })).toBeVisible();
+  await expect(common.getByText('over private profit')).toBeVisible();
+  await page.getByRole('link', { name: 'Read the full text' }).click();
   await expect(page).toHaveURL(/\/en\/manifesto$/);
 });
 
@@ -84,6 +88,16 @@ test('about section names the initiator in a personal capacity', async ({ page }
   );
 });
 
+test('contact page links the initiator to their homepage', async ({ page }) => {
+  await page.goto('/en/contact');
+  const main = page.locator('main');
+  await expect(main.getByRole('link', { name: 'Philipp Eckert' })).toHaveAttribute(
+    'href',
+    'https://eckert.rocks',
+  );
+  await expect(main.getByRole('link', { name: "Who's behind this" })).toHaveCount(0);
+});
+
 test('contact page shows the contact address', async ({ page }) => {
   await page.goto('/en/contact');
   await expect(page.getByRole('link', { name: 'contact@giantsmanifesto.org' })).toHaveAttribute(
@@ -97,4 +111,51 @@ test('legal pages render their headings', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Privacy policy');
   await page.goto('/en/imprint');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Imprint');
+});
+
+test.describe('manifesto reading layout', () => {
+  test('TOC marks the section in view on wide screens', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/en/manifesto#preamble');
+    await page.locator('#call-to-action').scrollIntoViewIfNeeded();
+    await expect(page.locator('nav.toc a[href="#call-to-action"]')).toHaveAttribute(
+      'aria-current',
+      'location',
+    );
+    await expect(page.locator('nav.toc a[aria-current]')).toHaveCount(1);
+  });
+
+  test('TOC stays in view while reading', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/en/manifesto');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const toc = page.locator('nav.toc');
+    await expect(toc).toBeVisible();
+    const box = await toc.boundingBox();
+    expect(box?.y).toBeGreaterThanOrEqual(0);
+    await expect(page.locator('nav.toc a[aria-current]')).toHaveCount(1);
+  });
+
+  test('TOC sits above the text on phones', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto('/en/manifesto');
+    const toc = await page.locator('nav.toc').boundingBox();
+    const h2 = await page.locator('article h2').first().boundingBox();
+    expect((toc?.y ?? 0) + (toc?.height ?? 0)).toBeLessThanOrEqual(h2?.y ?? 0);
+  });
+
+  test.describe('without JavaScript', () => {
+    test.use({ javaScriptEnabled: false });
+    test('TOC links still navigate', async ({ page }) => {
+      await page.goto('/en/manifesto');
+      await page.locator('nav.toc').getByRole('link', { name: 'Preamble' }).click();
+      await expect(page).toHaveURL(/#preamble$/);
+    });
+  });
+});
+
+test('the about section is separated from the one above by a rule', async ({ page }) => {
+  await page.goto('/en/');
+  const width = await page.locator('#about').evaluate((el) => getComputedStyle(el).borderTopWidth);
+  expect(Number.parseFloat(width)).toBeGreaterThan(0);
 });

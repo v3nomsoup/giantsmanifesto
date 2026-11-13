@@ -1,28 +1,45 @@
 :root {
-  --bg: #fbfaf7;
-  --fg: #1d1b18;
-  --muted: #5f5a52;
-  --accent: #8a3b12;
-  --accent-fg: #ffffff;
-  --rule: #e4e0d8;
-  --surface: #f2efe8;
-  --measure: 42rem;
-  --font-body: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
-  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bg: #eef1f3;
+  --surface: #e3e8ec;
+  --fg: #1e242b;
+  --muted: #56606b;
+  --faint: #626b75;
+  --line: #9aa7b4;
+  --accent: #2c6ba3;
+  --btn: #1e242b;
+  --btn-fg: #ffffff;
+  --font-ui: "Hanken Grotesk", system-ui, sans-serif;
+  --font-text: "Literata", Georgia, serif;
+  --measure: 52rem;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #151412;
-    --fg: #ece8e1;
-    --muted: #a8a197;
-    --accent: #f0a46c;
-    --accent-fg: #151412;
-    --rule: #2e2b27;
-    --surface: #1f1d1a;
+  :root:not([data-theme="light"]) {
+    --bg: #151a20;
+    --surface: #1d242c;
+    --fg: #e4e9ee;
+    --muted: #a9b2bc;
+    --faint: #8e98a3;
+    --line: #46525f;
+    --accent: #7db3e3;
+    --btn: #e4e9ee;
+    --btn-fg: #151a20;
     color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #151a20;
+  --surface: #1d242c;
+  --fg: #e4e9ee;
+  --muted: #a9b2bc;
+  --faint: #8e98a3;
+  --line: #46525f;
+  --accent: #7db3e3;
+  --btn: #e4e9ee;
+  --btn-fg: #151a20;
+  color-scheme: dark;
 }
 
 *,
@@ -35,7 +52,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 1.125rem;
   line-height: 1.6;
 }
@@ -75,18 +92,52 @@ main,
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   padding-block: 1.25rem;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--line);
   font-family: var(--font-ui);
   font-size: 1rem;
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--fg);
   font-weight: 700;
   text-decoration: none;
+}
+
+.convergence {
+  display: block;
+  overflow: visible;
+}
+
+.convergence-line {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.convergence-base {
+  fill: var(--line);
+}
+
+.convergence-apex {
+  fill: var(--accent);
+}
+
+.convergence--mark {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+}
+
+.convergence--mark .convergence-line {
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
 }
 
 .site-header ul,
@@ -99,12 +150,30 @@ main,
   list-style: none;
 }
 
-[aria-current='page'] {
+.site-header nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-header nav a:hover,
+.site-header nav a:focus-visible {
+  text-decoration: underline;
+}
+
+.site-header nav a[aria-current="page"] {
+  color: var(--fg);
+}
+
+[aria-current="page"] {
   font-weight: 700;
 }
 
 main {
   padding-block: 2.5rem 4rem;
+}
+
+body.wide :is(.site-header, main, .site-footer) {
+  max-width: 64rem;
 }
 
 h1,
@@ -116,7 +185,9 @@ h3 {
 
 h1 {
   margin-block: 0 1rem;
-  font-size: clamp(2rem, 6vw, 3rem);
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 h2 {
@@ -134,6 +205,7 @@ blockquote {
   padding-left: 1rem;
   border-left: 3px solid var(--accent);
   color: var(--muted);
+  font-family: var(--font-text);
   font-style: italic;
 }
 
@@ -141,10 +213,104 @@ blockquote {
   overflow-wrap: break-word;
 }
 
+article.prose {
+  max-width: 70ch;
+}
+
+article.prose :is(p, li, blockquote) {
+  font-family: var(--font-text);
+  line-height: 1.7;
+}
+
+.hero-head {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.hero-drawing {
+  display: none;
+}
+
+.hero-quote {
+  margin-block: 0 2rem;
+}
+
+.hero-quote p {
+  margin: 0;
+}
+
+.hero-quote p + p {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.values-lead {
+  margin-block: 0 0.5rem;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.values {
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 1.2rem;
+  line-height: 1.85;
+}
+
+.values li {
+  margin: 0;
+  padding: 0;
+}
+
+.values span {
+  color: var(--faint);
+}
+
+@media (min-width: 54rem) {
+  /* The head is as tall as the drawing, so the quote starts below it;
+     the headline starts at the top, level with the drawing's apex. */
+  .hero-head {
+    display: flex;
+    align-items: flex-start;
+    /* Down to the drawing's base points (y 323 of 340, box lifted by 1rem),
+       then the same 2rem gap the quote keeps to the values below it. */
+    min-height: calc(17.5rem * 323 / 380 - 1rem);
+    margin-bottom: 2rem;
+  }
+
+  /* Line the headline's cap height up with the drawing's apex. */
+  .hero-title {
+    padding-top: 0.6rem;
+  }
+
+  .hero-drawing {
+    display: block;
+    position: absolute;
+    /* The apex sits at y 60 of the 340 viewBox; lifting the box by 1rem
+       brings it level with the headline's first line. */
+    top: -1rem;
+    right: 0;
+    width: 17.5rem;
+    height: auto;
+  }
+}
+
 .meta {
   color: var(--muted);
   font-family: var(--font-ui);
   font-size: 0.95rem;
+}
+
+.numeral {
+  color: var(--muted);
 }
 
 .toc {
@@ -156,22 +322,89 @@ blockquote {
   font-size: 1rem;
 }
 
+/* The text starts with its first section; line it up with the contents. */
+.manifesto-layout .prose > :first-child {
+  margin-top: 0;
+}
+
+.manifesto-layout .toc {
+  max-width: 70ch;
+}
+
 .toc ol {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.toc li {
+  margin-block: 0.25rem;
+}
+
+.toc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.toc a:hover,
+.toc a:focus-visible {
+  text-decoration: underline;
+}
+
+.toc a[aria-current="location"] {
+  font-weight: 700;
+}
+
 .toc-depth-3 {
   padding-left: 1rem;
+}
+
+@media (min-width: 64rem) {
+  .manifesto-layout {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .manifesto-layout .toc {
+    position: sticky;
+    top: 1.5rem;
+    grid-row: 1;
+    max-height: calc(100vh - 3rem);
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    overflow: auto;
+    border-radius: 0;
+    border-left: 1px solid var(--line);
+    background: none;
+    font-size: 0.9rem;
+  }
+
+  .toc li {
+    position: relative;
+    line-height: 1.35;
+    margin-block: 0.5rem;
+  }
+
+  .toc li:has(a[aria-current="location"])::before {
+    content: "";
+    position: absolute;
+    left: -0.9rem;
+    top: 0.4em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
 }
 
 .button {
   display: inline-block;
   padding: 0.75rem 1.25rem;
   border-radius: 6px;
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: var(--btn);
+  color: var(--btn-fg);
   font-family: var(--font-ui);
   font-weight: 600;
   text-decoration: none;
@@ -180,16 +413,21 @@ blockquote {
 .callout {
   margin-top: 3rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--line);
 }
 
 section + section {
   margin-top: 3rem;
 }
 
+#about {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
 .site-footer {
   padding-block: 2rem;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--line);
   color: var(--muted);
   font-family: var(--font-ui);
   font-size: 0.95rem;
@@ -203,4 +441,57 @@ section + section {
 .heading-link:hover,
 .heading-link:focus-visible {
   text-decoration: underline;
+}
+
+.site-header .header-end {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  min-height: 2rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.theme-toggle[hidden] {
+  display: none;
+}
+
+.theme-toggle svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Show the icon of the theme the button switches to. */
+.theme-toggle .icon-sun {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun {
+    display: block;
+  }
+
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon {
+    display: none;
+  }
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
 }

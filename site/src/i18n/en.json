@@ -10,6 +10,10 @@
     "footerNav": "Footer",
     "toc": "Contents"
   },
+  "theme": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme"
+  },
   "nav": {
     "manifesto": "Manifesto",
     "changelog": "Changelog",
@@ -23,14 +27,12 @@
     "source": "Source on GitHub"
   },
   "home": {
-    "readManifesto": "Read the full manifesto",
+    "readManifesto": "Read the full text",
+    "valuesLead": "We value:",
     "version": "Version {version}",
-    "shapeTitle": "Shape it",
-    "shapeText": "This is a living document. Criticism, ideas and improvements shape each new version.",
-    "shapeLink": "Open an issue or pull request on GitHub",
     "aboutTitle": "Who's behind this",
-    "aboutInitiator": "The manifesto was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
-    "aboutProcess": "It belongs to everyone who stands behind it. Feedback flows into new versions, and the changelog records what changed and why."
+    "aboutInitiator": "It was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
+    "aboutProcess": "The manifesto belongs to everyone who stands behind it. Feedback flows into new versions, and the changelog records what changed and why."
   },
   "manifesto": {
     "title": "Manifesto",
@@ -45,7 +47,7 @@
     "title": "Contact",
     "intro": "Questions, press enquiries or ideas: write to {email}.",
     "feedback": "Feedback on the text itself is welcome on {github}.",
-    "initiator": "Initiated by Philipp Eckert."
+    "initiator": "Initiated by {name}."
   },
   "legal": {
     "privacy": "Privacy policy",
