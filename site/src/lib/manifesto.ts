@@ -67,7 +67,9 @@ export function parseManifesto(source: string): Manifesto {
   const body = source.slice(titleMatch.index + titleMatch[0].length);
   const firstSection = body.search(/^## /m);
   const intro = firstSection === -1 ? body : body.slice(0, firstSection);
-  const { html, toc } = renderMarkdown(body, { headingLinks: true });
+  // The homepage shows the intro; the full text starts at the first section.
+  const sections = firstSection === -1 ? '' : body.slice(firstSection);
+  const { html, toc } = renderMarkdown(sections, { headingLinks: true });
 
   return {
     title: titleMatch[1].trim(),

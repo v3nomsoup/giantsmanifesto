@@ -49,6 +49,13 @@ describe('parseManifesto', () => {
     expect(introHtml).not.toContain('heading-link');
   });
 
+  it('starts the body at the first section, without the intro', () => {
+    const { html } = parseManifesto(fixture);
+    expect(html.trimStart().startsWith('<h2 id="preamble">')).toBe(true);
+    expect(html).not.toContain('A quote');
+    expect(html).not.toContain('Common good');
+  });
+
   it('leaves the title out of the body', () => {
     expect(parseManifesto(fixture).html).not.toContain('Test Manifesto');
   });

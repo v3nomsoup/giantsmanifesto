@@ -30,9 +30,6 @@
     "readManifesto": "Read the full text",
     "valuesLead": "We value:",
     "version": "Version {version}",
-    "shapeTitle": "Shape it",
-    "shapeText": "This is a living document. Criticism, ideas and improvements shape each new version.",
-    "shapeLink": "Open an issue or pull request on GitHub",
     "aboutTitle": "Who's behind this",
     "aboutInitiator": "The manifesto was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
     "aboutProcess": "It belongs to everyone who stands behind it. Feedback flows into new versions, and the changelog records what changed and why."

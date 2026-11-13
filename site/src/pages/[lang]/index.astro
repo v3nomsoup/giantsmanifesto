@@ -3,7 +3,7 @@ import { type Locale, localePath, localeStaticPaths, t } from '../../i18n';
 import Convergence from '../../components/Convergence.astro';
 import Base from '../../layouts/Base.astro';
 import { loadManifesto } from '../../lib/manifesto';
-import { COMPUTERKUNST_URL, GITHUB_URL, INITIATOR_URL } from '../../lib/site';
+import { COMPUTERKUNST_URL, INITIATOR_URL } from '../../lib/site';
 
 export const prerender = true;
 export const getStaticPaths = localeStaticPaths;
@@ -37,12 +37,6 @@ const initiator = t(lang, 'home.aboutInitiator', {
       <a class="button" href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
     </p>
     <p class="meta">{t(lang, 'home.version', { version: manifesto.version })}</p>
-  </section>
-
-  <section class="prose" aria-labelledby="shape-title">
-    <h2 id="shape-title">{t(lang, 'home.shapeTitle')}</h2>
-    <p>{t(lang, 'home.shapeText')}</p>
-    <p><a href={`${GITHUB_URL}/issues`}>{t(lang, 'home.shapeLink')}</a></p>
   </section>
 
   <section class="prose" id="about" aria-labelledby="about-title">

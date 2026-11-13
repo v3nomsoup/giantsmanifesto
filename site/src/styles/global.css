@@ -322,6 +322,11 @@ article.prose :is(p, li, blockquote) {
   font-size: 1rem;
 }
 
+/* The text starts with its first section; line it up with the contents. */
+.manifesto-layout .prose > :first-child {
+  margin-top: 0;
+}
+
 .manifesto-layout .toc {
   max-width: 70ch;
 }
