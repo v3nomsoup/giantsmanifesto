@@ -166,7 +166,6 @@ h3 {
 }
 
 h1 {
-  max-width: 13em;
   margin-block: 0 1rem;
   font-size: clamp(1.9rem, 5vw, 2.6rem);
   font-weight: 700;
@@ -203,6 +202,79 @@ article.prose {
 article.prose :is(p, li, blockquote) {
   font-family: var(--font-text);
   line-height: 1.7;
+}
+
+.hero {
+  position: relative;
+}
+
+.hero > :not(.hero-drawing) {
+  position: relative;
+}
+
+.hero-title {
+  max-width: 13em;
+  margin-bottom: 1.5rem;
+}
+
+.hero-drawing {
+  display: none;
+}
+
+.hero-quote {
+  max-width: 34rem;
+  margin-block: 0 2rem;
+}
+
+.hero-quote p {
+  margin: 0;
+}
+
+.hero-quote p + p {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.values-lead {
+  margin-block: 0 0.5rem;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.values {
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 1.2rem;
+}
+
+.values li {
+  padding-block: 0.4rem;
+}
+
+.values span {
+  color: var(--faint);
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    width: min(48rem, 50vw + 18rem);
+  }
+
+  .hero-title {
+    max-width: min(13em, calc(100% - 13rem));
+  }
+
+  .hero-drawing {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12rem;
+    height: auto;
+  }
 }
 
 .meta {

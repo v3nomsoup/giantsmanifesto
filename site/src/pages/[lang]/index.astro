@@ -1,5 +1,6 @@
 ---
 import { type Locale, localePath, localeStaticPaths, t } from '../../i18n';
+import Convergence from '../../components/Convergence.astro';
 import Base from '../../layouts/Base.astro';
 import { loadManifesto } from '../../lib/manifesto';
 import { COMPUTERKUNST_URL, GITHUB_URL, INITIATOR_URL } from '../../lib/site';
@@ -16,9 +17,20 @@ const initiator = t(lang, 'home.aboutInitiator', {
 ---
 
 <Base lang={lang}>
-  <section class="prose">
-    <h1>{manifesto.title}</h1>
-    <Fragment set:html={manifesto.introHtml} />
+  <section class="hero">
+    <Convergence variant="full" class="hero-drawing" />
+    <h1 class="hero-title">{manifesto.intro.statement}</h1>
+    <blockquote class="hero-quote" set:html={manifesto.intro.quoteHtml} />
+    <p class="values-lead">{t(lang, 'home.valuesLead')}</p>
+    <ul class="values">
+      {
+        manifesto.intro.values.map((value) => (
+          <li>
+            <strong>{value.term}</strong> <span>{value.rest}</span>
+          </li>
+        ))
+      }
+    </ul>
     <p>
       <a class="button" href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
     </p>

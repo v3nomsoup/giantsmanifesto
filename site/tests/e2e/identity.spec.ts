@@ -17,3 +17,29 @@ test('favicon is the theme-aware mark', async ({ request }) => {
   expect(response.headers()['content-type']).toContain('image/svg+xml');
   expect(await response.text()).toContain('prefers-color-scheme');
 });
+
+for (const size of [
+  { width: 1280, height: 800 },
+  { width: 375, height: 800 },
+]) {
+  test(`homepage drawing does not overlap the headline at ${size.width}px`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await page.goto('/en/');
+    const drawing = page.locator('.convergence--full');
+    if (!(await drawing.isVisible())) return;
+    const a = await drawing.boundingBox();
+    const b = await page.locator('h1').boundingBox();
+    expect(a).not.toBeNull();
+    expect(b).not.toBeNull();
+    if (!a || !b) return;
+    const overlaps =
+      a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+    expect(overlaps).toBe(false);
+  });
+}
+
+test('full drawing has eight curves and one apex', async ({ page }) => {
+  await page.goto('/en/');
+  await expect(page.locator('.convergence--full path')).toHaveCount(8);
+  await expect(page.locator('.convergence--full .convergence-apex')).toHaveCount(1);
+});

@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { loadManifesto, parseManifesto } from '../../src/lib/manifesto';
+import { loadManifesto, parseIntro, parseManifesto } from '../../src/lib/manifesto';
 
 const fixture = [
   '# Test Manifesto',
   '',
   '> A quote',
+  '> — Someone',
+  '',
+  '**Built from all of us.**',
   '',
   'We value:',
   '',
@@ -60,6 +63,58 @@ describe('parseManifesto', () => {
     expect(() => parseManifesto(fixture.replace('# Test Manifesto', ''))).toThrow(
       'Shoulders-of-Giants-Manifesto.md: missing "# " title line',
     );
+  });
+});
+
+describe('parseIntro', () => {
+  const intro = [
+    '> A quote',
+    '> — Someone',
+    '',
+    '**Built from all of us.**',
+    '',
+    'We value:',
+    '',
+    '- **Common good** over private profit',
+  ].join('\n');
+  const message =
+    'Shoulders-of-Giants-Manifesto.md: intro needs a quote, a bold core statement and at least one "- **Value** over …" line';
+
+  it('extracts quote, statement and values', () => {
+    const parsed = parseIntro(intro);
+    expect(parsed.statement).toBe('Built from all of us.');
+    expect(parsed.values).toEqual([{ term: 'Common good', rest: 'over private profit' }]);
+    expect(parsed.quoteHtml).toContain('A quote');
+    expect(parsed.quoteHtml).toContain('Someone');
+  });
+
+  it('is part of the parsed manifesto', () => {
+    expect(parseManifesto(fixture).intro.statement).toBe('Built from all of us.');
+  });
+
+  it('throws when the bold statement is missing', () => {
+    expect(() => parseIntro(intro.replace('**Built from all of us.**', ''))).toThrow(message);
+  });
+
+  it('throws when the quote is missing', () => {
+    expect(() => parseIntro(intro.replace(/^> .*\n/gm, ''))).toThrow(message);
+  });
+
+  it('throws when there is no value line', () => {
+    expect(() => parseIntro(intro.replace('- **Common good** over private profit', ''))).toThrow(
+      message,
+    );
+  });
+
+  it('reads the real manifesto', () => {
+    const real = loadManifesto().intro;
+    expect(real.values.map((v) => v.term)).toEqual([
+      'Common good',
+      'Transparency',
+      'Shared stewardship',
+      'A liveable planet',
+    ]);
+    expect(real.statement).toMatch(/^The machines that will shape our century/);
   });
 });
 

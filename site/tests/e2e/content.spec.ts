@@ -60,13 +60,17 @@ test('unknown locale returns 404', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
 });
 
-test('homepage shows the intro, a link to the full text and who is behind it', async ({ page }) => {
+test('homepage shows the core statement, values, a link to the full text and who is behind it', async ({
+  page,
+}) => {
   await page.goto('/en/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'The Shoulders of Giants Manifesto',
+    /^The machines that will shape our century/,
   );
-  await expect(page.getByText('Common good', { exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Read the full manifesto' }).click();
+  const common = page.locator('.values li', { hasText: 'Common good' });
+  await expect(common.getByText('Common good', { exact: true })).toBeVisible();
+  await expect(common.getByText('over private profit')).toBeVisible();
+  await page.getByRole('link', { name: 'Read the full text' }).click();
   await expect(page).toHaveURL(/\/en\/manifesto$/);
 });
 
