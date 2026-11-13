@@ -1,0 +1,10 @@
+.git
+.github
+docs
+**/node_modules
+site/dist
+site/.astro
+site/test-results
+site/playwright-report
+.env
+.env.*
