@@ -1,0 +1,43 @@
+---
+interface Props {
+  variant: 'full' | 'mark';
+  class?: string;
+}
+
+const { variant, class: className } = Astro.props;
+
+const apex = { x: 300, y: 60 };
+const fullBases = [40, 90, 140, 190, 240, 290, 340, 375];
+const full = fullBases.map((x) => ({
+  x,
+  d: `M${x} 320 C${x} 200 ${apex.x} 190 ${apex.x} ${apex.y}`,
+}));
+
+const markBases = [2, 7, 11, 16];
+const mark = markBases.map((x) => `M9 3 C9 9 ${x} 9 ${x} 16`);
+---
+
+{
+  variant === 'full' ? (
+    <svg
+      class:list={['convergence', 'convergence--full', className]}
+      viewBox="0 0 380 340"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {full.map((p) => <path class="convergence-line" d={p.d} />)}
+      {full.map((p) => <circle class="convergence-base" cx={p.x} cy="320" r="3" />)}
+      <circle class="convergence-apex" cx={apex.x} cy={apex.y} r="5" />
+    </svg>
+  ) : (
+    <svg
+      class:list={['convergence', 'convergence--mark', className]}
+      viewBox="0 0 18 18"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {mark.map((d) => <path class="convergence-line" d={d} />)}
+      <circle class="convergence-apex" cx="9" cy="3" r="2" />
+    </svg>
+  )
+}

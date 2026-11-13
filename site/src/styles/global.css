@@ -101,9 +101,43 @@ main,
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--fg);
   font-weight: 700;
   text-decoration: none;
+}
+
+.convergence {
+  display: block;
+  overflow: visible;
+}
+
+.convergence-line {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.convergence-base {
+  fill: var(--line);
+}
+
+.convergence-apex {
+  fill: var(--accent);
+}
+
+.convergence--mark {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+}
+
+.convergence--mark .convergence-line {
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
 }
 
 .site-header ul,
