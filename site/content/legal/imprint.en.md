@@ -5,7 +5,8 @@ Information according to § 5 DDG (German Digital Services Act).
 ## Responsible for this website
 
 Philipp Eckert\
-Postal address: to be added before launch
+Wedellstr. 20b
+12247 Berlin
 
 ## Contact
 

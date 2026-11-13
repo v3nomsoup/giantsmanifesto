@@ -14,7 +14,7 @@ To deliver pages, the web server processes your IP address and the requested pag
 
 ## Hosting
 
-The website runs on a server rented by the initiator. Hosting provider: to be named before launch.
+The website runs on a server rented by the initiator. Hosting provider: Contabo GmbH, Welfenstraße 22, 81541 München
 
 ## Your rights
 
