@@ -1,0 +1,196 @@
+:root {
+  --bg: #fbfaf7;
+  --fg: #1d1b18;
+  --muted: #5f5a52;
+  --accent: #8a3b12;
+  --accent-fg: #ffffff;
+  --rule: #e4e0d8;
+  --surface: #f2efe8;
+  --measure: 42rem;
+  --font-body: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151412;
+    --fg: #ece8e1;
+    --muted: #a8a197;
+    --accent: #f0a46c;
+    --accent-fg: #151412;
+    --rule: #2e2b27;
+    --surface: #1f1d1a;
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999rem;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  background: var(--bg);
+}
+
+.site-header,
+main,
+.site-footer {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+}
+
+.brand {
+  color: var(--fg);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-header ul,
+.site-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[aria-current='page'] {
+  font-weight: 700;
+}
+
+main {
+  padding-block: 2.5rem 4rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+h1 {
+  margin-block: 0 1rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+}
+
+h2 {
+  margin-top: 2.5rem;
+  font-size: 1.6rem;
+}
+
+h3 {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+}
+
+blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.prose :is(p, li) {
+  overflow-wrap: break-word;
+}
+
+.meta {
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.toc {
+  margin-block: 1.5rem 2rem;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+}
+
+.toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc-depth-3 {
+  padding-left: 1rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.callout {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+section + section {
+  margin-top: 3rem;
+}
+
+.site-footer {
+  padding-block: 2rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
