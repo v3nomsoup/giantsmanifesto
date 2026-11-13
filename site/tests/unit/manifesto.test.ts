@@ -39,6 +39,13 @@ describe('parseManifesto', () => {
     expect(introHtml).not.toContain('Preamble');
   });
 
+  it('turns body headings into anchor links but leaves the intro alone', () => {
+    const { html, introHtml } = parseManifesto(fixture);
+    expect(html).toContain('<a class="heading-link" href="#preamble">Preamble</a>');
+    expect(html).toContain('<a class="heading-link" href="#i-first-principle">');
+    expect(introHtml).not.toContain('heading-link');
+  });
+
   it('leaves the title out of the body', () => {
     expect(parseManifesto(fixture).html).not.toContain('Test Manifesto');
   });

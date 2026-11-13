@@ -24,7 +24,7 @@ export function parseManifesto(source: string): Manifesto {
   const body = source.slice(titleMatch.index + titleMatch[0].length);
   const firstSection = body.search(/^## /m);
   const intro = firstSection === -1 ? body : body.slice(0, firstSection);
-  const { html, toc } = renderMarkdown(body);
+  const { html, toc } = renderMarkdown(body, { headingLinks: true });
 
   return {
     title: titleMatch[1].trim(),

@@ -12,8 +12,13 @@ export interface RenderedMarkdown {
   toc: TocEntry[];
 }
 
+export interface RenderOptions {
+  /** Wrap heading content in a link to its own anchor. */
+  headingLinks?: boolean;
+}
+
 /** Renders trusted Markdown from the repo and gives every heading a slug id. */
-export function renderMarkdown(source: string): RenderedMarkdown {
+export function renderMarkdown(source: string, options: RenderOptions = {}): RenderedMarkdown {
   const slugger = new GithubSlugger();
   const toc: TocEntry[] = [];
   const marked = new Marked({
@@ -21,7 +26,11 @@ export function renderMarkdown(source: string): RenderedMarkdown {
       heading({ tokens, depth, text }) {
         const id = slugger.slug(text);
         toc.push({ depth, text, id });
-        return `<h${depth} id="${id}">${this.parser.parseInline(tokens)}</h${depth}>\n`;
+        const inline = this.parser.parseInline(tokens);
+        const content = options.headingLinks
+          ? `<a class="heading-link" href="#${id}">${inline}</a>`
+          : inline;
+        return `<h${depth} id="${id}">${content}</h${depth}>\n`;
       },
     },
   });

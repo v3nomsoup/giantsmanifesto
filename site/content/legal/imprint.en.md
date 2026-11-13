@@ -4,7 +4,7 @@ Information according to § 5 DDG (German Digital Services Act).
 
 ## Responsible for this website
 
-Philipp Eckert
+Philipp Eckert\
 Postal address: to be added before launch
 
 ## Contact

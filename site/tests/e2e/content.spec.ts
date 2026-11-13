@@ -1,8 +1,11 @@
 import { expect, test } from '@playwright/test';
 
-test('root redirects to the English homepage', async ({ page }) => {
+test('root redirects to the English homepage', async ({ page, request }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/en\/$/);
+  const response = await request.get('/', { maxRedirects: 0 });
+  expect(response.status()).toBe(302);
+  expect(response.headers().location).toMatch(/\/en\/$/);
 });
 
 test('manifesto page shows title, version and full text', async ({ page }) => {
@@ -30,9 +33,25 @@ test('changelog lists version 0.1', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /^0\.1/ })).toBeVisible();
 });
 
-test('pages work without a trailing slash', async ({ page }) => {
-  const response = await page.goto('/en/manifesto/');
-  expect(response?.status()).toBe(200);
+test('pages work with and without a trailing slash', async ({ page }) => {
+  for (const path of ['/en/manifesto', '/en/manifesto/']) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+  }
+});
+
+test('canonical URLs drop the trailing slash except on the locale root', async ({ page }) => {
+  await page.goto('/en/manifesto/');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/en\/manifesto$/);
+  await page.goto('/en/');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/en\/$/);
+});
+
+test('404 page is not indexable and has no canonical', async ({ page }) => {
+  await page.goto('/xx/manifesto');
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  await expect(page.locator('meta[property="og:url"]')).toHaveCount(0);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
 });
 
 test('unknown locale returns 404', async ({ page }) => {

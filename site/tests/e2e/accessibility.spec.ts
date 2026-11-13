@@ -16,7 +16,8 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     for (const path of publicPages) {
       test(`${path} has no accessibility violations`, async ({ page }) => {
-        await page.goto(path);
+        const response = await page.goto(path);
+        expect(response?.status()).toBe(200);
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations).toEqual([]);
       });
@@ -27,7 +28,8 @@ for (const colorScheme of ['light', 'dark'] as const) {
 for (const path of publicPages) {
   test(`${path} fits a 375px wide screen`, async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto(path);
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

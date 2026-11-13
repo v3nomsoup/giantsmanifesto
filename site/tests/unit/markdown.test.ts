@@ -26,4 +26,15 @@ describe('renderMarkdown', () => {
     const { html } = renderMarkdown('## Sign *it*');
     expect(html).toContain('<h2 id="sign-it">Sign <em>it</em></h2>');
   });
+
+  it('wraps heading content in an anchor link when headingLinks is set', () => {
+    const { html } = renderMarkdown('## Sign *it*', { headingLinks: true });
+    expect(html).toContain(
+      '<h2 id="sign-it"><a class="heading-link" href="#sign-it">Sign <em>it</em></a></h2>',
+    );
+  });
+
+  it('does not emit heading links by default', () => {
+    expect(renderMarkdown('## Notes').html).not.toContain('heading-link');
+  });
 });

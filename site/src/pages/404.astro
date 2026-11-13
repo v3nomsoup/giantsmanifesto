@@ -7,7 +7,7 @@ export const prerender = true;
 const lang = defaultLocale;
 ---
 
-<Base lang={lang} title={t(lang, 'notFound.title')}>
+<Base lang={lang} title={t(lang, 'notFound.title')} noindex>
   <h1>{t(lang, 'notFound.title')}</h1>
   <p>{t(lang, 'notFound.text')}</p>
   <p><a href={localePath(lang)}>{t(lang, 'notFound.home')}</a></p>

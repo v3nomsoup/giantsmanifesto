@@ -194,3 +194,13 @@ section + section {
   font-family: var(--font-ui);
   font-size: 0.95rem;
 }
+
+.heading-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.heading-link:hover,
+.heading-link:focus-visible {
+  text-decoration: underline;
+}
