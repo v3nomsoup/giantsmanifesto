@@ -40,7 +40,29 @@ for (const size of [
     const rule = await page.locator('header.site-header').boundingBox();
     expect(rule).not.toBeNull();
     if (rule) expect(a.x + a.width).toBeLessThanOrEqual(rule.x + rule.width);
-    for (const selector of ['h1', '.hero-quote', '.values']) {
+    // The headline may share the drawing's box, but no curve may cross its text.
+    const crossings = await page.evaluate(() => {
+      const h1 = document.querySelector('h1');
+      const svg = document.querySelector<SVGSVGElement>('.convergence--full');
+      if (!h1 || !svg) return -1;
+      const range = document.createRange();
+      range.selectNodeContents(h1);
+      const lines = [...range.getClientRects()];
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return -1;
+      let hits = 0;
+      for (const path of svg.querySelectorAll('path')) {
+        const length = path.getTotalLength();
+        for (let i = 0; i <= 100; i++) {
+          const p = path.getPointAtLength((length * i) / 100).matrixTransform(ctm);
+          // getScreenCTM and getClientRects both use viewport coordinates.
+          if (lines.some((r) => p.x >= r.left - 4 && p.x <= r.right + 4 && p.y >= r.top && p.y <= r.bottom)) hits++;
+        }
+      }
+      return hits;
+    });
+    expect(crossings).toBe(0);
+    for (const selector of ['.hero-quote', '.values']) {
       const b = await page.locator(selector).boundingBox();
       expect(b, selector).not.toBeNull();
       if (!b) continue;
