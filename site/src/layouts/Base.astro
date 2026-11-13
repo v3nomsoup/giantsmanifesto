@@ -2,6 +2,11 @@
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { type Locale, t } from '../i18n';
+import '@fontsource/hanken-grotesk/latin-400.css';
+import '@fontsource/hanken-grotesk/latin-500.css';
+import '@fontsource/hanken-grotesk/latin-700.css';
+import '@fontsource/literata/latin-400.css';
+import '@fontsource/literata/latin-400-italic.css';
 import '../styles/global.css';
 
 interface Props {
@@ -25,6 +30,12 @@ const canonical = new URL(canonicalPath, Astro.site);
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
+    <script is:inline>
+      try {
+        var stored = localStorage.getItem('theme');
+        if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={metaDescription} />

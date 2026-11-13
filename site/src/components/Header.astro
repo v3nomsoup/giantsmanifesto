@@ -1,5 +1,6 @@
 ---
 import { type Locale, localePath, t } from '../i18n';
+import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
   lang: Locale;
@@ -16,6 +17,7 @@ const current = Astro.url.pathname.replace(/\/$/, '');
 
 <header class="site-header">
   <a class="brand" href={localePath(lang)}>{t(lang, 'site.shortName')}</a>
+  <div class="header-end">
   <nav aria-label={t(lang, 'a11y.mainNav')}>
     <ul>
       {links.map((link) => (
@@ -27,4 +29,6 @@ const current = Astro.url.pathname.replace(/\/$/, '');
       ))}
     </ul>
   </nav>
+  <ThemeToggle lang={lang} />
+  </div>
 </header>

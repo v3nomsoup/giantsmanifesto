@@ -10,6 +10,10 @@
     "footerNav": "Footer",
     "toc": "Contents"
   },
+  "theme": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme"
+  },
   "nav": {
     "manifesto": "Manifesto",
     "changelog": "Changelog",
