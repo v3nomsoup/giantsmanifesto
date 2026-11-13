@@ -88,6 +88,16 @@ test('about section names the initiator in a personal capacity', async ({ page }
   );
 });
 
+test('contact page links the initiator to their homepage', async ({ page }) => {
+  await page.goto('/en/contact');
+  const main = page.locator('main');
+  await expect(main.getByRole('link', { name: 'Philipp Eckert' })).toHaveAttribute(
+    'href',
+    'https://eckert.rocks',
+  );
+  await expect(main.getByRole('link', { name: "Who's behind this" })).toHaveCount(0);
+});
+
 test('contact page shows the contact address', async ({ page }) => {
   await page.goto('/en/contact');
   await expect(page.getByRole('link', { name: 'contact@giantsmanifesto.org' })).toHaveAttribute(

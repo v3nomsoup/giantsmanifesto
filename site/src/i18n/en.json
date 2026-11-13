@@ -47,7 +47,7 @@
     "title": "Contact",
     "intro": "Questions, press enquiries or ideas: write to {email}.",
     "feedback": "Feedback on the text itself is welcome on {github}.",
-    "initiator": "Initiated by Philipp Eckert."
+    "initiator": "Initiated by {name}."
   },
   "legal": {
     "privacy": "Privacy policy",

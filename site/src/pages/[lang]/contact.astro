@@ -1,7 +1,7 @@
 ---
-import { type Locale, localePath, localeStaticPaths, t } from '../../i18n';
+import { type Locale, localeStaticPaths, t } from '../../i18n';
 import Base from '../../layouts/Base.astro';
-import { CONTACT_EMAIL, GITHUB_URL } from '../../lib/site';
+import { CONTACT_EMAIL, GITHUB_URL, INITIATOR_URL } from '../../lib/site';
 
 export const prerender = true;
 export const getStaticPaths = localeStaticPaths;
@@ -11,6 +11,9 @@ const intro = t(lang, 'contact.intro', {
   email: `<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>`,
 });
 const feedback = t(lang, 'contact.feedback', { github: `<a href="${GITHUB_URL}/issues">GitHub</a>` });
+const initiator = t(lang, 'contact.initiator', {
+  name: `<a href="${INITIATOR_URL}">Philipp Eckert</a>`,
+});
 ---
 
 <Base lang={lang} title={t(lang, 'contact.title')}>
@@ -18,9 +21,6 @@ const feedback = t(lang, 'contact.feedback', { github: `<a href="${GITHUB_URL}/i
     <h1>{t(lang, 'contact.title')}</h1>
     <p set:html={intro} />
     <p set:html={feedback} />
-    <p>
-      {t(lang, 'contact.initiator')}
-      <a href={`${localePath(lang)}#about`}>{t(lang, 'footer.about')}</a>
-    </p>
+    <p set:html={initiator} />
   </article>
 </Base>
