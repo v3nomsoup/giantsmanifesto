@@ -27,6 +27,14 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
 for (const theme of ['light', 'dark'] as const) {
   test.describe(`explicit ${theme} theme`, () => {
+    test('the 404 page has no accessibility violations', async ({ page }) => {
+      await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
+      const response = await page.goto('/en/nope');
+      expect(response?.status()).toBe(404);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
+
     for (const path of publicPages) {
       test(`${path} has no accessibility violations`, async ({ page }) => {
         await page.addInitScript((value) => localStorage.setItem('theme', value), theme);

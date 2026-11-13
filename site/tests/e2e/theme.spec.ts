@@ -87,8 +87,34 @@ test('no request leaves our origin', async ({ page, baseURL }) => {
   for (const path of publicPages) {
     await page.goto(path);
   }
+  const notFound = await page.goto('/en/nope');
+  expect(notFound?.status()).toBe(404);
   expect(urls.length).toBeGreaterThan(0);
   for (const url of urls) {
     expect(url.startsWith(baseURL ?? '') || url.startsWith('data:')).toBe(true);
   }
+});
+
+test('header height does not change when the script unhides the toggle', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/en/');
+  await expect(page.locator('.theme-toggle')).toBeVisible();
+  const withJs = (await page.locator('.site-header').boundingBox())?.height ?? 0;
+
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 1280, height: 800 },
+    baseURL,
+  });
+  const plain = await context.newPage();
+  await plain.goto('/en/');
+  const withoutJs = (await plain.locator('.site-header').boundingBox())?.height ?? 0;
+  await context.close();
+
+  expect(withJs).toBeGreaterThan(0);
+  expect(Math.abs(withJs - withoutJs)).toBeLessThanOrEqual(1);
 });

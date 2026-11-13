@@ -143,3 +143,9 @@ test.describe('manifesto reading layout', () => {
     });
   });
 });
+
+test('the about section is separated from the one above by a rule', async ({ page }) => {
+  await page.goto('/en/');
+  const width = await page.locator('#about').evaluate((el) => getComputedStyle(el).borderTopWidth);
+  expect(Number.parseFloat(width)).toBeGreaterThan(0);
+});

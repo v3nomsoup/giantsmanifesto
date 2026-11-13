@@ -312,6 +312,10 @@ article.prose :is(p, li, blockquote) {
   font-size: 1rem;
 }
 
+.manifesto-layout .toc {
+  max-width: 70ch;
+}
+
 .toc ol {
   margin: 0;
   padding: 0;
@@ -401,6 +405,11 @@ section + section {
   margin-top: 3rem;
 }
 
+#about {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
 .site-footer {
   padding-block: 2rem;
   border-top: 1px solid var(--line);
@@ -423,6 +432,7 @@ section + section {
   display: flex;
   gap: 1.25rem;
   align-items: center;
+  min-height: 2rem;
 }
 
 .theme-toggle {
