@@ -17,7 +17,13 @@ function int(env: NodeJS.ProcessEnv, name: string, fallback: number): number {
   return Number(raw.trim());
 }
 
-const flag = (value: string | undefined) => value === '1' || value === 'true';
+/** `true`/`1`/`yes` or `false`/`0`/`no`/empty, in any case; anything else is a mistake. */
+function flag(env: NodeJS.ProcessEnv, name: string): boolean {
+  const value = (env[name] ?? '').trim().toLowerCase();
+  if (['true', '1', 'yes'].includes(value)) return true;
+  if (['false', '0', 'no', ''].includes(value)) return false;
+  throw new Error(`${name} must be true or false`);
+}
 
 export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
@@ -28,7 +34,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
       ? {
           host: env.SMTP_HOST,
           port: int(env, 'SMTP_PORT', 587),
-          secure: flag(env.SMTP_SECURE),
+          secure: flag(env, 'SMTP_SECURE'),
           user: env.SMTP_USER || undefined,
           password: env.SMTP_PASSWORD || undefined,
         }
@@ -36,7 +42,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
     mailFrom: env.MAIL_FROM || undefined,
     mailMaxPerHour: int(env, 'MAIL_MAX_PER_HOUR', 60),
     rateLimitMax: int(env, 'RATE_LIMIT_MAX', 10),
-    trustProxy: flag(env.TRUST_PROXY),
+    trustProxy: flag(env, 'TRUST_PROXY'),
     altchaMaxNumber: int(env, 'ALTCHA_MAX_NUMBER', 100000),
   };
 }

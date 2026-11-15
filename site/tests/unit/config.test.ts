@@ -23,6 +23,21 @@ describe('readConfig', () => {
     expect(config.trustProxy).toBe(true);
   });
 
+  it.each(['true', 'TRUE', 'True', '1', 'yes', 'YES', ' yes '])('reads %j as true', (value) => {
+    expect(readConfig({ TRUST_PROXY: value }).trustProxy).toBe(true);
+    expect(readConfig({ SMTP_HOST: 'h', SMTP_SECURE: value }).smtp?.secure).toBe(true);
+  });
+
+  it.each(['false', 'FALSE', '0', 'no', 'No', '', ' '])('reads %j as false', (value) => {
+    expect(readConfig({ TRUST_PROXY: value }).trustProxy).toBe(false);
+    expect(readConfig({ SMTP_HOST: 'h', SMTP_SECURE: value }).smtp?.secure).toBe(false);
+  });
+
+  it('throws naming the variable for an unknown flag value', () => {
+    expect(() => readConfig({ TRUST_PROXY: 'on' })).toThrow(/TRUST_PROXY/);
+    expect(() => readConfig({ SMTP_HOST: 'h', SMTP_SECURE: '2' })).toThrow(/SMTP_SECURE/);
+  });
+
   it('throws naming the variable for invalid numbers', () => {
     expect(() => readConfig({ MAIL_MAX_PER_HOUR: 'abc' })).toThrow(/MAIL_MAX_PER_HOUR/);
     expect(() => readConfig({ RATE_LIMIT_MAX: 'x' })).toThrow(/RATE_LIMIT_MAX/);

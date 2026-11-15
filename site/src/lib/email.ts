@@ -3,6 +3,9 @@ import { createHash } from 'node:crypto';
 const MAX_LENGTH = 254;
 // local@domain.tld, no whitespace, no extra "@", domain labels non-empty.
 const SHAPE = /^[^@\s]+@[^@\s.]+(\.[^@\s.]+)+$/;
+// Characters that are special in address headers (lists, groups, comments, quoting); an
+// address with one could make the mail go to someone else.
+const HEADER_SPECIALS = /[,;<>()[\]":\\]/;
 
 /** Trim, then lowercase the whole address. */
 export function normalizeEmail(raw: string): string {
@@ -16,5 +19,6 @@ export function hashEmail(raw: string): string {
 
 export function isValidEmail(raw: string): boolean {
   const email = normalizeEmail(raw);
-  return email.length <= MAX_LENGTH && SHAPE.test(email);
+  // Checked in the whole address: none of these are valid in a domain either.
+  return email.length <= MAX_LENGTH && SHAPE.test(email) && !HEADER_SPECIALS.test(email);
 }

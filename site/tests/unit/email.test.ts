@@ -31,6 +31,29 @@ describe('isValidEmail', () => {
     expect(isValidEmail(raw)).toBe(false);
   });
 
+  it.each([
+    'root,x@y.org',
+    'a;b@y.org',
+    'a<b@y.org',
+    'a>b@y.org',
+    'a(b@y.org',
+    'a)b@y.org',
+    'a[b@y.org',
+    'a]b@y.org',
+    'a"b@y.org',
+    'a:b@y.org',
+    'a\\b@y.org',
+  ])('rejects the header-unsafe local part %j', (raw) => {
+    expect(isValidEmail(raw)).toBe(false);
+  });
+
+  it.each(['a@x,evil.org', 'a@x;evil.org', 'a@x>.org'])(
+    'rejects the header-unsafe domain %j',
+    (raw) => {
+      expect(isValidEmail(raw)).toBe(false);
+    },
+  );
+
   it('accepts a plus-tagged subdomain address', () => {
     expect(isValidEmail('a.b+tag@sub.example.co.uk')).toBe(true);
   });

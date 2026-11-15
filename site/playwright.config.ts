@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
-import { E2E_DATA_DIR, E2E_SITE_URL } from './tests/e2e/env';
+import { E2E_DATA_DIR, E2E_PAUSED_DATA_DIR, E2E_SITE_URL } from './tests/e2e/env';
 
 const port = 4322;
 const pausedPort = 4323;
-const pausedDataDir = `${E2E_DATA_DIR}-paused`;
+const pausedDataDir = E2E_PAUSED_DATA_DIR;
 
 /**
  * Signing enabled, mail to Mailpit on 127.0.0.1:1025. `npm run build` runs inside the command,

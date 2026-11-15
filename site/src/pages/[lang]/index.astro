@@ -19,9 +19,12 @@ const enabled = signingEnabled(readConfig());
 const db = getDb();
 const count = countSignatures(db);
 const newest = listSignatures(db, { page: 1, pageSize: 5 }).items;
+// While paused, nobody can be "the first to sign", so the line is left out until someone has.
 const countText =
   count === 0
-    ? t(lang, 'home.countNone')
+    ? enabled
+      ? t(lang, 'home.countNone')
+      : undefined
     : count === 1
       ? t(lang, 'home.countOne')
       : t(lang, 'home.count', { count: count.toLocaleString(lang) });
@@ -58,7 +61,7 @@ const initiator = t(lang, 'home.aboutInitiator', {
       }
       <a href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
     </p>
-    <p class="home-count">{countText}</p>
+    {countText && <p class="home-count">{countText}</p>}
     <p class="meta">{t(lang, 'home.version', { version: manifesto.version })}</p>
   </section>
 
