@@ -5,6 +5,8 @@ import { expect, test } from '@playwright/test';
 const forwarded = {
   'X-Forwarded-Proto': 'https',
   'X-Forwarded-Host': 'giantsmanifesto.org',
+  'X-Forwarded-Port': '443',
+  'X-Forwarded-For': '203.0.113.7',
 };
 const form = { displayName: 'Origin test', email: 'origin@example.org' };
 
@@ -16,7 +18,8 @@ test('a form POST from the production origin through the proxy is accepted', asy
     headers: { Origin: 'https://giantsmanifesto.org', ...forwarded },
     maxRedirects: 0,
   });
-  expect(response.status()).not.toBe(403);
+  // Past the origin check, the form is validated: without an ALTCHA proof that is a 400.
+  expect(response.status()).toBe(400);
 });
 
 test('a form POST from a foreign origin is rejected', async ({ request }) => {
