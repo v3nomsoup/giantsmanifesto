@@ -51,8 +51,10 @@ export async function verifyAltcha(
   now: number = Date.now(),
 ): Promise<boolean> {
   if (!payload || payload.length > MAX_PAYLOAD_LENGTH || !config.sessionSecret) return false;
+  // All challenges live equally long, so the map is ordered by expiry: stop at the first live one.
   for (const [signature, expires] of used) {
-    if (expires <= now) used.delete(signature);
+    if (expires > now) break;
+    used.delete(signature);
   }
   const decoded = decode(payload);
   if (!decoded) return false;
@@ -72,6 +74,9 @@ export async function verifyAltcha(
   } catch {
     return false;
   }
+  // verifySolution awaited: a concurrent request with the same payload may have won meanwhile.
+  // Re-check and record with no await in between, so exactly one caller succeeds.
+  if (used.has(signature)) return false;
   used.set(signature, expiresAt * 1000);
   return true;
 }

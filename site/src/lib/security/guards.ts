@@ -1,5 +1,6 @@
 import { type Config, readConfig } from '../config';
 import { verifyAltcha } from './altcha';
+import { limiterKey } from './client-ip';
 import { FORM_WINDOW_MS, RateLimiter } from './rate-limit';
 
 let formLimiter: RateLimiter | undefined;
@@ -24,7 +25,7 @@ export async function checkFormGuards(
 ): Promise<GuardResult> {
   const trap = form.get('website');
   if (typeof trap === 'string' && trap.trim() !== '') return 'honeypot';
-  if (!getFormLimiter().hit(ip)) return 'rate_limited';
+  if (!getFormLimiter().hit(limiterKey(ip))) return 'rate_limited';
   const payload = form.get('altcha');
   if (!(await verifyAltcha(typeof payload === 'string' ? payload : null, config))) return 'altcha';
   return 'ok';

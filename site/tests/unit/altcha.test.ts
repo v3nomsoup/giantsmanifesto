@@ -22,6 +22,13 @@ describe('ALTCHA', () => {
     expect(await verifyAltcha(payload, cfg)).toBe(false);
   });
 
+  it('accepts exactly one of several concurrent submissions of the same payload', async () => {
+    const cfg = config();
+    const payload = await solvedPayload(cfg);
+    const results = await Promise.all(Array.from({ length: 5 }, () => verifyAltcha(payload, cfg)));
+    expect(results.filter(Boolean)).toHaveLength(1);
+  });
+
   it('rejects a tampered payload', async () => {
     const cfg = config();
     const decoded = JSON.parse(atob(await solvedPayload(cfg)));
