@@ -1,6 +1,7 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /repo/site
 COPY site/package.json site/package-lock.json ./
+# Relies on better-sqlite3 shipping prebuilt binaries: the slim image has no Python to compile it.
 RUN npm ci --ignore-scripts
 COPY Shoulders-of-Giants-Manifesto.md CHANGELOG.md /repo/
 COPY site/ ./

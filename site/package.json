@@ -10,7 +10,7 @@
     "build": "astro build",
     "start": "node dist/server/entry.mjs",
     "typecheck": "astro check",
-    "lint": "biome check src/lib src/i18n tests",
+    "lint": "biome check src/lib src/i18n src/middleware.ts tests",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate"

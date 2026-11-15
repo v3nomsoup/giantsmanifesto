@@ -32,12 +32,15 @@ Signing and withdrawing stay **paused** (the pages show "Signing opens soon") un
    - `SESSION_SECRET`: a long random value, for example the output of `openssl rand -hex 32`.
    - `SMTP_HOST`, `SMTP_PORT` (default `587`), `SMTP_SECURE` (`true` for port 465), `SMTP_USER`, `SMTP_PASSWORD`: the outgoing mail server.
    - `MAIL_FROM`: the sender address, for example `contact@giantsmanifesto.org`.
-   - Optional: `MAIL_MAX_PER_HOUR` (default `60`), the cap on mails sent per hour.
+   - Optional: `MAIL_MAX_PER_HOUR` (default `60`), the cap on mails sent per hour. Mail above the cap is not lost: during a launch spike it waits in the queue and goes out over the following hours.
+   - Optional: `RATE_LIMIT_MAX` (default `10`), form submissions allowed per IP address in 15 minutes. Visitors behind one shared address (a company or university network) share this limit and may need more.
 
    Signing is enabled only when `SMTP_HOST`, `MAIL_FROM` and `SESSION_SECRET` are all set.
-3. **Redeploy**, then open `https://giantsmanifesto.org/healthz` (it must answer `ok`) and the homepage (it must show the Sign button, not "Signing opens soon"). Do one test signature with an address you control: sign, confirm through the mail link, check that you are in the list at `/en/signatures`, then withdraw it again at `/en/withdraw` and check that it is gone.
-4. **Access logs.** Confirmation and withdrawal links carry a secret token in the URL. If Traefik access logs are enabled, they record those URLs; keep access logs off or short-lived.
-5. **Proxy hops.** `TRUST_PROXY=1` (set in the Docker image) assumes exactly one proxy in front of the app, Traefik. The rate limits use the rightmost `X-Forwarded-For` entry. If a CDN or another proxy is ever put in front, revisit `clientIp` (`site/src/lib/security/client-ip.ts`) first, or every visitor may share one rate limit.
+3. **Mail DNS.** Before enabling signing, set up SPF, DKIM and DMARC for the sending domain at the domain registrar, as your mail provider describes; a dedicated guide follows in milestone 5. Then send a test mail through the configured SMTP account to [mail-tester.com](https://www.mail-tester.com) and fix what it reports, so confirmation mail does not land in spam.
+4. **Redeploy**, then open `https://giantsmanifesto.org/healthz` (it must answer `ok`) and the homepage (it must show the Sign button, not "Signing opens soon"). Do one test signature with an address you control: sign, confirm through the mail link, check that you are in the list at `/en/signatures`, then withdraw it again at `/en/withdraw` and check that it is gone.
+5. **Access logs.** Confirmation and withdrawal links carry a secret token in the URL. If Traefik access logs are enabled, they record those URLs; keep access logs off or short-lived.
+6. **Proxy hops.** `TRUST_PROXY=1` (set in the Docker image) assumes exactly one proxy in front of the app, Traefik. The rate limits use the rightmost `X-Forwarded-For` entry. If a CDN or another proxy is ever put in front, revisit `clientIp` (`site/src/lib/security/client-ip.ts`) first, or every visitor may share one rate limit.
+7. **Rolling deploys.** During a deploy the old and the new container run side by side for a short time, and both send queued mail. In that window one mail can be sent twice; the second copy carries the same link and is harmless.
 
 ## 4. Deploy on push to `main`
 
