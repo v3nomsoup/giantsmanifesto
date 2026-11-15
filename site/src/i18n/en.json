@@ -53,6 +53,21 @@
     "privacy": "Privacy policy",
     "imprint": "Imprint"
   },
+  "mail": {
+    "greeting": "Hello {name},",
+    "validity": "The link is valid for 48 hours.",
+    "signOff": "The Shoulders of Giants Manifesto",
+    "signConfirm": {
+      "subject": "Confirm your signature",
+      "intro": "Someone, hopefully you, asked to sign the Shoulders of Giants Manifesto with this email address. To confirm, open this link:",
+      "ignore": "If this wasn't you, ignore this email; nothing will be published."
+    },
+    "withdraw": {
+      "subject": "Withdraw your signature",
+      "intro": "Someone, hopefully you, asked to withdraw a signature of the Shoulders of Giants Manifesto made with this email address. To continue, open this link:",
+      "ignore": "If this wasn't you, ignore this email; nothing will change."
+    }
+  },
   "notFound": {
     "title": "Page not found",
     "text": "This page does not exist.",
