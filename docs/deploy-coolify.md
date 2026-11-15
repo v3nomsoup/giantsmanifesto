@@ -23,7 +23,23 @@ At the registrar, point both names to the VPS:
 7. **Auto Deploy**: on (Configuration → Advanced).
 8. Deploy once manually and open `https://giantsmanifesto.org/healthz`.
 
-## 3. Deploy on push to `main`
+## 3. Before signing goes live
+
+Signing and withdrawing stay **paused** (the pages show "Signing opens soon") until the steps below are done. Do them in this order.
+
+1. **Persistent storage.** In the application's **Persistent Storage**, add a volume mounted at `/data`. Use a Docker **named volume** (Coolify's default "Volume Name"), or a host path that is owned by uid 1000 (`node`, the user the container runs as). Without it SQLite cannot open its database in `/data`, `/healthz` returns 503 and the health check keeps the deploy from going live. The database lives there, so it also survives redeploys.
+2. **Environment variables** (runtime, not build variables):
+   - `SESSION_SECRET`: a long random value, for example the output of `openssl rand -hex 32`.
+   - `SMTP_HOST`, `SMTP_PORT` (default `587`), `SMTP_SECURE` (`true` for port 465), `SMTP_USER`, `SMTP_PASSWORD`: the outgoing mail server.
+   - `MAIL_FROM`: the sender address, for example `contact@giantsmanifesto.org`.
+   - Optional: `MAIL_MAX_PER_HOUR` (default `60`), the cap on mails sent per hour.
+
+   Signing is enabled only when `SMTP_HOST`, `MAIL_FROM` and `SESSION_SECRET` are all set.
+3. **Redeploy**, then open `https://giantsmanifesto.org/healthz` (it must answer `ok`) and the homepage (it must show the Sign button, not "Signing opens soon"). Do one test signature with an address you control: sign, confirm through the mail link, check that you are in the list at `/en/signatures`, then withdraw it again at `/en/withdraw` and check that it is gone.
+4. **Access logs.** Confirmation and withdrawal links carry a secret token in the URL. If Traefik access logs are enabled, they record those URLs; keep access logs off or short-lived.
+5. **Proxy hops.** `TRUST_PROXY=1` (set in the Docker image) assumes exactly one proxy in front of the app, Traefik. The rate limits use the rightmost `X-Forwarded-For` entry. If a CDN or another proxy is ever put in front, revisit `clientIp` (`site/src/lib/security/client-ip.ts`) first, or every visitor may share one rate limit.
+
+## 4. Deploy on push to `main`
 
 Coolify deploys every push to `main` through a GitHub webhook. The Coolify API stays off, and no deploy token is stored in GitHub.
 

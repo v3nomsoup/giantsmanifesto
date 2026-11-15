@@ -14,6 +14,18 @@ If you switch between light and dark theme, your choice is stored in your browse
 
 To deliver pages, the web server processes your IP address and the requested page. The application does not write IP addresses to its logs.
 
+<!-- needs legal review -->
+If you sign the manifesto, we store your name, affiliation (optional), country (optional), the date and time of signing, the version of the manifesto you signed and the time you agreed to publication. Name, affiliation, country and the date of signing are published in the public list of signatures on this site and can be found by search engines. The legal basis is your consent (Art. 6(1)(a) GDPR).
+
+<!-- needs legal review -->
+We use your email address only to send you the link that confirms your signature. We do not store it in readable form: we keep only a one-way hash (SHA-256) of it, which lets us recognize the same address if it signs or withdraws again. The readable address stays in our outgoing mail queue only until the mail is sent, then it is deleted. It is never published.
+
+<!-- needs legal review -->
+A signature is published only after you confirm it through the link in the email. Links and unconfirmed signatures expire after 48 hours and are then no longer valid.
+
+<!-- needs legal review -->
+You can withdraw your signature at any time on the [withdrawal page](/en/withdraw). Enter the email address you signed with; if a signature exists, we send a link, and once you confirm there, your signature is deleted from the list immediately.
+
 ## Hosting
 
 The website runs on a server rented by the initiator. Hosting provider: Contabo GmbH, Welfenstraße 22, 81541 München

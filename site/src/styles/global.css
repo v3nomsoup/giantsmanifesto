@@ -639,3 +639,119 @@ altcha-widget {
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+/* Homepage actions: the Sign button first, the full text as a plain link. */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  margin-block: 0 1rem;
+  font-family: var(--font-ui);
+}
+
+.hero-actions > a:not(.button) {
+  font-weight: 600;
+}
+
+.signing-soon {
+  padding-block: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.home-count {
+  margin-block: 0 0.5rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+/* Signature lists: one entry per row, name first. */
+.signature-list {
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+}
+
+.signature-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1rem;
+  align-items: baseline;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+  scroll-margin-top: 1.5rem;
+}
+
+.signature-list li:target {
+  background: var(--surface);
+}
+
+.signature-place {
+  color: var(--muted);
+}
+
+.signature-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.badge {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 36rem;
+  margin-top: 1.5rem;
+  font-family: var(--font-ui);
+}
+
+.search label {
+  flex-basis: 100%;
+  font-weight: 600;
+}
+
+.search input[type="search"] {
+  flex: 1 1 12rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.search .button {
+  border: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.search .field-hint {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block: 1.5rem;
+  font-family: var(--font-ui);
+}

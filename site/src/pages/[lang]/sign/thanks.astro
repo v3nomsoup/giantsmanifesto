@@ -8,12 +8,15 @@ const lang = Astro.params.lang;
 if (!isLocale(lang)) return new Response(null, { status: 404 });
 
 const already = Astro.url.searchParams.get('already') === '1';
+const rawId = Astro.url.searchParams.get('id') ?? '';
+const listPath = localePath(lang, '/signatures');
+const listHref = already && /^\d{1,12}$/.test(rawId) ? `${listPath}#signature-${rawId}` : listPath;
 const title = already ? t(lang, 'sign.thanks.already') : t(lang, 'sign.thanks.title');
 ---
 
 <Base lang={lang} title={title} noindex>
   <h1>{title}</h1>
   <p>{already ? t(lang, 'sign.thanks.alreadyText') : t(lang, 'sign.thanks.text')}</p>
-  <p><a href={localePath(lang, '/signatures')}>{t(lang, 'sign.allSignatures')}</a></p>
+  <p><a href={listHref}>{t(lang, 'sign.allSignatures')}</a></p>
   <p><a href={localePath(lang, '/withdraw')}>{t(lang, 'sign.withdrawLink')}</a></p>
 </Base>

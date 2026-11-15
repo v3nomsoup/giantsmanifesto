@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto';
-import { expect, type Page } from '@playwright/test';
+import { type APIRequestContext, expect, type Page } from '@playwright/test';
 import { type Db, openDb } from '../../src/lib/db';
-import { mailQueue } from '../../src/lib/db/schema';
+import { mailQueue, signatures } from '../../src/lib/db/schema';
 import { hashEmail } from '../../src/lib/email';
-import { createEmailSignature, findByEmailHash, listSignatures } from '../../src/lib/signatures';
+import { countSignatures, createEmailSignature, findByEmailHash } from '../../src/lib/signatures';
 import { createToken } from '../../src/lib/tokens';
 import { E2E_DATA_DIR, E2E_SITE_URL } from './env';
 import { latestMailTo } from './mailpit';
@@ -62,10 +62,15 @@ export function withE2eDb<T>(fn: (db: Db) => T): T {
   }
 }
 
-export const publicSignatureNames = (query: string) =>
-  withE2eDb((db) =>
-    listSignatures(db, { query, page: 1, pageSize: 50 }).items.map((s) => s.displayName),
+/** Names in the public list for a search, read from the real `/en/signatures` page. */
+export async function listedNames(request: APIRequestContext, query: string): Promise<string[]> {
+  const response = await request.get(`/en/signatures?q=${encodeURIComponent(query)}`);
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  return [...html.matchAll(/<strong class="signature-name">([^<]*)<\/strong>/g)].map(
+    (match) => match[1] ?? '',
   );
+}
 
 /** Seeds a signature and a valid withdraw link directly, for tests that only need the page. */
 export function seedWithdrawLink({ withSignature = true } = {}): string {
@@ -131,3 +136,37 @@ export const queuedMailCount = (address: string) =>
         .all()
         .filter((row) => row.to === address.toLowerCase()).length,
   );
+
+export const signatureCount = () => withE2eDb((db) => countSignatures(db));
+
+export interface SeedSignature {
+  displayName: string;
+  affiliation?: string;
+  country?: string;
+  createdAt?: number;
+  hidden?: boolean;
+}
+
+/** Inserts signatures directly, for tests that only need the public pages to show them. */
+export function seedSignatures(rows: SeedSignature[]): number[] {
+  return withE2eDb((db) =>
+    rows.map((row) => {
+      const { id } = db
+        .insert(signatures)
+        .values({
+          createdAt: row.createdAt ?? Date.now(),
+          displayName: row.displayName,
+          affiliation: row.affiliation ?? '',
+          country: row.country ?? '',
+          provider: 'email',
+          providerSubject: hashEmail(`seed-${randomBytes(8).toString('hex')}@example.org`),
+          manifestoVersion: '1',
+          consentAt: Date.now(),
+          hidden: row.hidden ?? false,
+        })
+        .returning({ id: signatures.id })
+        .get();
+      return id;
+    }),
+  );
+}

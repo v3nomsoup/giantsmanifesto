@@ -22,6 +22,9 @@ const config = readConfig();
 const enabled = signingEnabled(config);
 const checkEmailPath = localePath(lang, '/withdraw/check-email');
 
+// A POST while paused creates nothing; it gets the notice below with 503.
+if (!enabled && Astro.request.method === 'POST') Astro.response.status = 503;
+
 let email = '';
 let emailError: string | undefined;
 let formError: string | undefined;

@@ -3,7 +3,7 @@ import { mailIdsTo } from './mailpit';
 import {
   confirmPathFromMail,
   fillSignForm,
-  publicSignatureNames,
+  listedNames,
   queuedMailCount,
   solveAltcha,
   submitSignForm,
@@ -13,6 +13,7 @@ import {
 test('signing by email: form, mail, confirm by POST, then "already used" and "already signed"', async ({
   page,
   context,
+  request,
 }) => {
   test.setTimeout(180_000);
   const signer = uniqueSigner('flow');
@@ -32,7 +33,7 @@ test('signing by email: form, mail, confirm by POST, then "already used" and "al
   await expect(summary.getByText('Analytical Engines')).toBeVisible();
   await expect(summary.getByText('United Kingdom')).toBeVisible();
   await page.reload();
-  expect(publicSignatureNames(signer.name)).toEqual([]);
+  expect(await listedNames(request, signer.name)).toEqual([]);
 
   // The same link open in a second tab: its Confirm button is clicked after the first one.
   const secondTab = await context.newPage();
@@ -41,7 +42,7 @@ test('signing by email: form, mail, confirm by POST, then "already used" and "al
   await page.getByRole('button', { name: 'Confirm signature' }).click();
   await expect(page).toHaveURL(/\/en\/sign\/thanks$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Thank you for signing');
-  expect(publicSignatureNames(signer.name)).toEqual([signer.name]);
+  expect(await listedNames(request, signer.name)).toEqual([signer.name]);
 
   // A second POST (double click, second tab or resent form) is "already used", not an error.
   const response = secondTab.waitForResponse((r) => r.request().method() === 'POST');
@@ -51,7 +52,7 @@ test('signing by email: form, mail, confirm by POST, then "already used" and "al
     'This link was already used.',
   );
   await secondTab.close();
-  expect(publicSignatureNames(signer.name)).toEqual([signer.name]);
+  expect(await listedNames(request, signer.name)).toEqual([signer.name]);
 
   // Opening the link again.
   await page.goto(first.path);
@@ -70,9 +71,12 @@ test('signing by email: form, mail, confirm by POST, then "already used" and "al
   const second = await confirmPathFromMail(signer.email, [first.id]);
   await page.goto(second.path);
   await page.getByRole('button', { name: 'Confirm signature' }).click();
-  await expect(page).toHaveURL(/\/en\/sign\/thanks\?already=1$/);
+  await expect(page).toHaveURL(/\/en\/sign\/thanks\?already=1&id=\d+$/);
   await expect(page.getByText('You have already signed.')).toBeVisible();
-  expect(publicSignatureNames(signer.name)).toEqual([signer.name]);
+  // The link leads to the existing entry in the list, by id only (no personal data in the URL).
+  const entryLink = page.getByRole('link', { name: 'See all signatures' });
+  await expect(entryLink).toHaveAttribute('href', /^\/en\/signatures#signature-\d+$/);
+  expect(await listedNames(request, signer.name)).toEqual([signer.name]);
 });
 
 test('a form with an invalid email shows a focused error summary and keeps the name', async ({

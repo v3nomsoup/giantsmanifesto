@@ -16,6 +16,7 @@
   },
   "nav": {
     "manifesto": "Manifesto",
+    "signatures": "Signatures",
     "changelog": "Changelog",
     "contact": "Contact"
   },
@@ -24,11 +25,19 @@
     "contact": "Contact",
     "privacy": "Privacy",
     "imprint": "Imprint",
-    "source": "Source on GitHub"
+    "source": "Source on GitHub",
+    "withdraw": "Withdraw your signature"
   },
   "home": {
     "readManifesto": "Read the full text",
     "valuesLead": "We value:",
+    "sign": "Sign the manifesto",
+    "signingSoon": "Signing opens soon",
+    "countNone": "Be the first to sign.",
+    "countOne": "1 person has signed.",
+    "count": "{count} people have signed.",
+    "newestTitle": "Newest signatures",
+    "allSignatures": "All signatures",
     "version": "Version {version}",
     "aboutTitle": "Who's behind this",
     "aboutInitiator": "It was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
@@ -142,6 +151,24 @@
     },
     "allSignatures": "See all signatures",
     "withdrawLink": "Withdraw your signature"
+  },
+  "signatures": {
+    "title": "Signatures",
+    "searchLabel": "Search",
+    "searchHint": "By name or affiliation",
+    "searchButton": "Search",
+    "badge": {
+      "email": "Email confirmed"
+    },
+    "empty": "No one has signed yet.",
+    "noResults": "No signatures match your search.",
+    "showAll": "Show all signatures",
+    "pageEmpty": "There are no signatures on this page.",
+    "firstPage": "Back to the first page",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {pages}",
+    "pagesNav": "Pages"
   },
   "withdraw": {
     "title": "Withdraw your signature",

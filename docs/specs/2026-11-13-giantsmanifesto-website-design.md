@@ -216,7 +216,7 @@ Cancelled provider login, unreachable or non-Mastodon-API server, unknown Bluesk
 - **Integration (Vitest + temporary SQLite + MSW):** each provider flow with mocked provider responses, duplicate signature, email sign with valid/expired/reused link, withdrawal, organization flow through approval, feedback, admin access denied without allowlist.
 - **End-to-end (Playwright):** read manifesto; email signing with Mailpit; organization application → admin approval → logo visible; axe accessibility checks on all public pages.
 - **Manual launch checklist:** sign and withdraw once with real GitHub, LinkedIn, Mastodon and Bluesky accounts.
-- **CI (GitHub Actions):** lint, type check, unit and integration tests on every push and PR; E2E on PRs. After green tests on `main`, the workflow calls Coolify's deploy webhook; Coolify's own auto-deploy is disabled.
+- **CI (GitHub Actions):** lint, type check, unit and integration tests on every push and PR; E2E on PRs. Coolify deploys every push to `main` via a GitHub webhook; the `main` ruleset requires green `check` and `e2e` before merging.
 - **Local dev:** `docker compose up` runs the app and Mailpit.
 
 ## 10. Out of scope for v1

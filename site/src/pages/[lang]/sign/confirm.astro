@@ -25,7 +25,11 @@ if (Astro.request.method === 'POST') {
   if (result.ok) {
     const outcome = createEmailSignature(getDb(), result.payload);
     const thanks = localePath(lang, '/sign/thanks');
-    return Astro.redirect(outcome.created ? thanks : `${thanks}?already=1`, 303);
+    // The id of the existing entry is no personal data and lets the page link to it.
+    return Astro.redirect(
+      outcome.created ? thanks : `${thanks}?already=1&id=${outcome.existingId}`,
+      303,
+    );
   }
 } else {
   token = Astro.url.searchParams.get('token') ?? '';

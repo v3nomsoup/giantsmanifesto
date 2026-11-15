@@ -3,4 +3,4 @@
 .env.*
 !.env.example
 site/data/
-site/.e2e-data/
+site/.e2e-data*/

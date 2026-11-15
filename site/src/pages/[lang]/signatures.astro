@@ -1,0 +1,80 @@
+---
+import SignatureList from '../../components/SignatureList.astro';
+import { isLocale, localePath, t } from '../../i18n';
+import Base from '../../layouts/Base.astro';
+import { getDb } from '../../lib/db';
+import { countSignatures, listSignatures } from '../../lib/signatures';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
+const PAGE_SIZE = 50;
+const QUERY_MAX = 100;
+const PAGE_MAX = 1_000_000;
+
+const query = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, QUERY_MAX).trim();
+// Anything that is not a positive whole number is page 1.
+const rawPage = Astro.url.searchParams.get('page') ?? '';
+const page = /^\d{1,7}$/.test(rawPage) ? Math.min(Math.max(1, Number(rawPage)), PAGE_MAX) : 1;
+
+const db = getDb();
+const { items, total } = listSignatures(db, { query, page, pageSize: PAGE_SIZE });
+const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+const overall = query ? total : countSignatures(db);
+
+const listPath = localePath(lang, '/signatures');
+const pageHref = (target: number) => {
+  const params = new URLSearchParams();
+  if (query) params.set('q', query);
+  if (target > 1) params.set('page', String(target));
+  const search = params.toString();
+  return search ? `${listPath}?${search}` : listPath;
+};
+// Searches and later pages are not worth indexing; the plain list is.
+const noindex = query !== '' || page > 1;
+const countText =
+  overall === 0
+    ? ''
+    : overall === 1
+      ? t(lang, 'home.countOne')
+      : t(lang, 'home.count', { count: overall.toLocaleString(lang) });
+---
+
+<Base lang={lang} title={t(lang, 'signatures.title')} noindex={noindex}>
+  <h1>{t(lang, 'signatures.title')}</h1>
+  {!query && countText && <p class="home-count">{countText}</p>}
+  <form class="search" method="get" action={listPath} role="search">
+    <label for="q">{t(lang, 'signatures.searchLabel')}</label>
+    <input type="search" id="q" name="q" value={query} maxlength={QUERY_MAX} aria-describedby="q-hint" />
+    <button class="button" type="submit">{t(lang, 'signatures.searchButton')}</button>
+    <p class="field-hint" id="q-hint">{t(lang, 'signatures.searchHint')}</p>
+  </form>
+  {
+    items.length > 0 ? (
+      <>
+        <SignatureList lang={lang} items={items} detailed />
+        {pages > 1 && (
+          <nav class="pagination" aria-label={t(lang, 'signatures.pagesNav')}>
+            {page > 1 ? <a href={pageHref(page - 1)} rel="prev">{t(lang, 'signatures.previous')}</a> : <span />}
+            <span>{t(lang, 'signatures.pageOf', { page, pages })}</span>
+            {page < pages ? <a href={pageHref(page + 1)} rel="next">{t(lang, 'signatures.next')}</a> : <span />}
+          </nav>
+        )}
+      </>
+    ) : page > 1 ? (
+      <>
+        <p>{t(lang, 'signatures.pageEmpty')}</p>
+        <p><a href={pageHref(1)}>{t(lang, 'signatures.firstPage')}</a></p>
+      </>
+    ) : query ? (
+      <>
+        <p>{t(lang, 'signatures.noResults')}</p>
+        <p><a href={listPath}>{t(lang, 'signatures.showAll')}</a></p>
+      </>
+    ) : (
+      <p>{t(lang, 'signatures.empty')}</p>
+    )
+  }
+</Base>

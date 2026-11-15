@@ -3,7 +3,7 @@ import { mailIdsTo } from './mailpit';
 import {
   fillWithdrawForm,
   findSignature,
-  publicSignatureNames,
+  listedNames,
   queuedMailCount,
   seedWithdrawLink,
   signAndConfirm,
@@ -16,11 +16,12 @@ import {
 test('withdrawing: mail link shows the signature, GET keeps it, POST deletes it, link is then used', async ({
   page,
   context,
+  request,
 }) => {
   test.setTimeout(180_000);
   const signer = uniqueSigner('withdraw');
   const signMailId = await signAndConfirm(page, signer);
-  expect(publicSignatureNames(signer.name)).toEqual([signer.name]);
+  expect(await listedNames(request, signer.name)).toEqual([signer.name]);
 
   // The address in different case and with spaces still finds the signature.
   await fillWithdrawForm(page, `  ${signer.email.toUpperCase()} `);
@@ -39,7 +40,7 @@ test('withdrawing: mail link shows the signature, GET keeps it, POST deletes it,
   await expect(page.locator('meta[name="referrer"]')).toHaveAttribute('content', 'no-referrer');
   await expect(page.locator('main').getByText(signer.name)).toBeVisible();
   await page.reload();
-  expect(publicSignatureNames(signer.name)).toEqual([signer.name]);
+  expect(await listedNames(request, signer.name)).toEqual([signer.name]);
 
   const secondTab = await context.newPage();
   await secondTab.goto(link.path);
@@ -47,7 +48,7 @@ test('withdrawing: mail link shows the signature, GET keeps it, POST deletes it,
   await page.getByRole('button', { name: 'Delete my signature' }).click();
   await expect(page).toHaveURL(/\/en\/withdraw\/done$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your signature is deleted');
-  expect(publicSignatureNames(signer.name)).toEqual([]);
+  expect(await listedNames(request, signer.name)).toEqual([]);
   expect(findSignature(signer.email)).toBeUndefined();
 
   // A second POST (second tab, double click) is "already used", not an error.
@@ -210,8 +211,7 @@ test('withdraw pages under an unknown locale are 404', async ({ request }) => {
 
 test('the sign thanks page links to withdrawing', async ({ page }) => {
   await page.goto('/en/sign/thanks');
-  await expect(page.getByRole('link', { name: 'Withdraw your signature' })).toHaveAttribute(
-    'href',
-    '/en/withdraw',
-  );
+  await expect(
+    page.locator('main').getByRole('link', { name: 'Withdraw your signature' }),
+  ).toHaveAttribute('href', '/en/withdraw');
 });

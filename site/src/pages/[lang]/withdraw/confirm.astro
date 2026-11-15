@@ -16,6 +16,9 @@ interface WithdrawPayload {
   emailHash: string;
 }
 
+// Deliberately not gated on `signingEnabled`: withdrawing stays possible when signing is paused,
+// because the right to have a signature deleted must not depend on mail settings. The link was
+// issued earlier and is protected by its token.
 // A GET only looks at the token, so a mail scanner that opens the link deletes nothing.
 // The signature is deleted on POST, together with spending the token. A used token there
 // gets the "already used" page.

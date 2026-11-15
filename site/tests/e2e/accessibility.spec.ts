@@ -1,10 +1,18 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import { fillSignForm, seedWithdrawLink, solveAltcha, submitSignForm } from './signing';
+import {
+  fillSignForm,
+  seedSignatures,
+  seedWithdrawLink,
+  solveAltcha,
+  submitSignForm,
+} from './signing';
 
 const publicPages = [
   '/en/',
   '/en/manifesto',
+  '/en/signatures',
+  '/en/signatures?q=no-such-signature-anywhere',
   '/en/changelog',
   '/en/contact',
   '/en/privacy',
@@ -19,6 +27,15 @@ const publicPages = [
   '/en/withdraw/confirm?token=nope',
   '/en/withdraw/done',
 ];
+
+// The list pages are checked with entries, as well as empty (the no-match search above).
+test.beforeAll(() => {
+  seedSignatures([
+    { displayName: 'Ada Lovelace', affiliation: 'Analytical Engines', country: 'GB' },
+    { displayName: 'Grace Hopper', country: 'US' },
+    { displayName: 'No details' },
+  ]);
+});
 
 /** The sign form after a submission with errors in several fields. */
 async function showSignFormErrors(page: Page) {
