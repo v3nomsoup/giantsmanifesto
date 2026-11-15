@@ -14,13 +14,12 @@ import {
   type SignatureField,
   type SignatureInput,
 } from '../../../lib/forms/signature-input';
-import { enqueueMail } from '../../../lib/mail/queue';
+import { requestLinkMail } from '../../../lib/mail/request';
 import { signConfirmMail } from '../../../lib/mail/templates';
 import { loadManifesto } from '../../../lib/manifesto';
 import { clientIp } from '../../../lib/security/client-ip';
 import { checkFormGuards } from '../../../lib/security/guards';
 import type { PendingEmailSignature } from '../../../lib/signatures';
-import { createToken } from '../../../lib/tokens';
 
 export const prerender = false;
 
@@ -74,14 +73,25 @@ if (enabled && Astro.request.method === 'POST') {
       manifestoVersion: loadManifesto().version,
       consentAt: now,
     };
-    const token = createToken(db, 'sign', pending, now);
-    const link = `${config.siteUrl.replace(/\/$/, '')}${localePath(lang, '/sign/confirm')}?token=${token}`;
-    enqueueMail(db, signConfirmMail(lang, normalizeEmail(email), link, displayName), now);
-    return Astro.redirect(checkEmailPath, 303);
+    const confirmUrl = `${config.siteUrl.replace(/\/$/, '')}${localePath(lang, '/sign/confirm')}`;
+    // Within the cooldown nothing is created, but the answer is the same redirect.
+    const outcome = requestLinkMail(
+      db,
+      {
+        purpose: 'sign',
+        payload: pending,
+        build: (token) =>
+          signConfirmMail(lang, normalizeEmail(email), `${confirmUrl}?token=${token}`),
+      },
+      now,
+    );
+    if (outcome !== 'busy') return Astro.redirect(checkEmailPath, 303);
+    formError = 'form.errors.busy';
   }
   values = parsed.ok ? parsed.value : parsed.values;
   if (!parsed.ok && !formError) errors = parsed.errors;
-  Astro.response.status = guard === 'rate_limited' ? 429 : 400;
+  Astro.response.status =
+    guard === 'rate_limited' ? 429 : formError === 'form.errors.busy' ? 503 : 400;
 }
 
 const fieldOrder: SignatureField[] = ['displayName', 'affiliation', 'country', 'email', 'consent'];

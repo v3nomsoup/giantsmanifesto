@@ -1,10 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import { type APIRequestContext, expect, type Page } from '@playwright/test';
+import { and, eq } from 'drizzle-orm';
 import { type Db, openDb } from '../../src/lib/db';
-import { mailQueue, signatures } from '../../src/lib/db/schema';
+import { emailTokens, mailQueue, signatures } from '../../src/lib/db/schema';
 import { hashEmail } from '../../src/lib/email';
+import { COOLDOWN_MS } from '../../src/lib/mail/request';
 import { countSignatures, createEmailSignature, findByEmailHash } from '../../src/lib/signatures';
-import { createToken } from '../../src/lib/tokens';
+import { createToken, type TokenPurpose } from '../../src/lib/tokens';
 import { E2E_DATA_DIR, E2E_SITE_URL } from './env';
 import { latestMailTo } from './mailpit';
 
@@ -170,3 +172,21 @@ export function seedSignatures(rows: SeedSignature[]): number[] {
     }),
   );
 }
+
+/**
+ * Moves this address's tokens of `purpose` back past the 15-minute cooldown, so the next
+ * request sends mail again. Expiry is a separate column and stays as it is.
+ */
+export const endCooldown = (email: string, purpose: TokenPurpose) =>
+  withE2eDb((db) => {
+    const where = and(
+      eq(emailTokens.purpose, purpose),
+      eq(emailTokens.emailHash, hashEmail(email)),
+    );
+    for (const row of db.select().from(emailTokens).where(where).all()) {
+      db.update(emailTokens)
+        .set({ createdAt: row.createdAt - COOLDOWN_MS - 60_000 })
+        .where(eq(emailTokens.id, row.id))
+        .run();
+    }
+  });

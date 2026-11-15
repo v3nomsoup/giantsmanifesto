@@ -6,12 +6,11 @@ import Base from '../../../layouts/Base.astro';
 import { readConfig, signingEnabled } from '../../../lib/config';
 import { getDb } from '../../../lib/db';
 import { hashEmail, isValidEmail, normalizeEmail } from '../../../lib/email';
-import { enqueueMail } from '../../../lib/mail/queue';
+import { requestLinkMail } from '../../../lib/mail/request';
 import { withdrawMail } from '../../../lib/mail/templates';
 import { clientIp } from '../../../lib/security/client-ip';
 import { checkFormGuards } from '../../../lib/security/guards';
 import { findByEmailHash } from '../../../lib/signatures';
-import { createToken } from '../../../lib/tokens';
 
 export const prerender = false;
 
@@ -51,19 +50,23 @@ if (enabled && Astro.request.method === 'POST') {
   else if (email === '') emailError = 'form.errors.emailRequired';
   else if (!isValidEmail(email)) emailError = 'form.errors.emailInvalid';
   else {
-    // Every valid address gets the same answer. Whether a signature exists must not show in
-    // the status, the redirect or the page; the mail is the only difference.
+    // Every valid address gets the same answer. Whether a signature exists (or a link was
+    // sent in the last 15 minutes) must not show in the status, the redirect or the page; the
+    // mail is the only difference. A full queue answers "busy" for every address alike.
     const db = getDb();
-    const now = Date.now();
     const emailHash = hashEmail(email);
-    if (findByEmailHash(db, emailHash)) {
-      const token = createToken(db, 'withdraw', { emailHash }, now);
-      const link = `${config.siteUrl.replace(/\/$/, '')}${localePath(lang, '/withdraw/confirm')}?token=${token}`;
-      enqueueMail(db, withdrawMail(lang, normalizeEmail(email), link), now);
-    }
-    return Astro.redirect(checkEmailPath, 303);
+    const confirmUrl = `${config.siteUrl.replace(/\/$/, '')}${localePath(lang, '/withdraw/confirm')}`;
+    const outcome = requestLinkMail(db, {
+      purpose: 'withdraw',
+      payload: { emailHash },
+      send: Boolean(findByEmailHash(db, emailHash)),
+      build: (token) => withdrawMail(lang, normalizeEmail(email), `${confirmUrl}?token=${token}`),
+    });
+    if (outcome !== 'busy') return Astro.redirect(checkEmailPath, 303);
+    formError = 'form.errors.busy';
   }
-  Astro.response.status = guard === 'rate_limited' ? 429 : 400;
+  Astro.response.status =
+    guard === 'rate_limited' ? 429 : formError === 'form.errors.busy' ? 503 : 400;
 }
 
 const message = emailError && t(lang, emailError);

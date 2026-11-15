@@ -4,7 +4,13 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Db, openDb } from '../../src/lib/db';
 import { mailQueue } from '../../src/lib/db/schema';
-import { enqueueMail, type OutgoingMail, processQueue } from '../../src/lib/mail/queue';
+import {
+  enqueueMail,
+  MAIL_RETENTION_MS,
+  type OutgoingMail,
+  processQueue,
+  purgeOldMail,
+} from '../../src/lib/mail/queue';
 
 const opened: Db[] = [];
 const open = () => {
@@ -97,7 +103,8 @@ describe('processQueue', () => {
     let now = NOW;
     for (let i = 0; i < 8; i++) {
       await processQueue(db, send, { now, maxPerHour: 5, sentTimestamps: [] });
-      now += 2 ** 9 * MIN;
+      // Exactly the backoff: all 8 attempts fit well inside the 48-hour retention.
+      now += 2 ** (i + 1) * MIN;
     }
     expect(rows(db)).toHaveLength(0);
     expect(send).toHaveBeenCalledTimes(8);
@@ -115,5 +122,31 @@ describe('processQueue', () => {
     expect(result.sent).toBe(0);
     expect(send).not.toHaveBeenCalled();
     expect(rows(db)).toHaveLength(1);
+  });
+
+  it('drops mail older than 48 hours instead of sending it', async () => {
+    const db = open();
+    enqueueMail(db, mail('old@x.de'), NOW - MAIL_RETENTION_MS - 1);
+    enqueueMail(db, mail('new@x.de'), NOW - 1000);
+    const send = vi.fn().mockResolvedValue(undefined);
+    await processQueue(db, send, { now: NOW, maxPerHour: 5, sentTimestamps: [] });
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls[0][0].to).toBe('new@x.de');
+    expect(rows(db)).toHaveLength(0);
+  });
+});
+
+describe('purgeOldMail', () => {
+  it('deletes rows older than 48 hours, including ones still retrying', () => {
+    const db = open();
+    expect(MAIL_RETENTION_MS).toBe(48 * 60 * MIN);
+    enqueueMail(db, mail('old@x.de'), NOW - MAIL_RETENTION_MS - 1);
+    enqueueMail(db, mail('edge@x.de'), NOW - MAIL_RETENTION_MS);
+    enqueueMail(db, mail('new@x.de'), NOW - 1000);
+    db.update(mailQueue)
+      .set({ attempts: 3, sendAfter: NOW + MIN })
+      .run();
+    expect(purgeOldMail(db, NOW)).toBe(1);
+    expect(rows(db).map((row) => row.to)).toEqual(['edge@x.de', 'new@x.de']);
   });
 });

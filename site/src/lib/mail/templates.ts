@@ -28,16 +28,12 @@ function build(
   return { to, subject, text, html };
 }
 
-export function signConfirmMail(
-  lang: Locale,
-  to: string,
-  link: string,
-  name: string,
-): OutgoingMail {
+/** The greeting has no name: it was typed by whoever filled the form, not yet confirmed. */
+export function signConfirmMail(lang: Locale, to: string, link: string): OutgoingMail {
   return build(
     to,
     t(lang, 'mail.signConfirm.subject'),
-    [t(lang, 'mail.greeting', { name }), t(lang, 'mail.signConfirm.intro')],
+    [t(lang, 'mail.greeting'), t(lang, 'mail.signConfirm.intro')],
     link,
     [t(lang, 'mail.validity'), t(lang, 'mail.signConfirm.ignore')],
     t(lang, 'mail.signOff'),

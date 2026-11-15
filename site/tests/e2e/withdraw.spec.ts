@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mailIdsTo } from './mailpit';
 import {
+  endCooldown,
   fillWithdrawForm,
   findSignature,
   listedNames,
@@ -75,7 +76,9 @@ test('a valid link whose signature is already gone shows "deleted"', async ({ pa
   await expect(page).toHaveURL(/\/en\/withdraw\/check-email$/);
   const first = await withdrawPathFromMail(signer.email, [signMailId]);
 
-  // A second request gives a second valid link; the first one deletes the signature.
+  // A second request (after the 15-minute cooldown) gives a second valid link; the first one
+  // deletes the signature.
+  endCooldown(signer.email, 'withdraw');
   await fillWithdrawForm(page, signer.email);
   await solveAltcha(page);
   await submitWithdrawForm(page);

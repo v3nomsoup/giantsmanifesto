@@ -22,15 +22,21 @@ export const signatures = sqliteTable(
   ],
 );
 
-export const emailTokens = sqliteTable('email_tokens', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  tokenHash: text('token_hash').notNull().unique(),
-  purpose: text('purpose').notNull(),
-  payload: text('payload').notNull().default('{}'),
-  createdAt: integer('created_at').notNull(),
-  expiresAt: integer('expires_at').notNull(),
-  usedAt: integer('used_at'),
-});
+export const emailTokens = sqliteTable(
+  'email_tokens',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    tokenHash: text('token_hash').notNull().unique(),
+    purpose: text('purpose').notNull(),
+    payload: text('payload').notNull().default('{}'),
+    // Copy of `payload.emailHash`, as a column so the per-address cooldown can use an index.
+    emailHash: text('email_hash'),
+    createdAt: integer('created_at').notNull(),
+    expiresAt: integer('expires_at').notNull(),
+    usedAt: integer('used_at'),
+  },
+  (t) => [index('email_tokens_cooldown').on(t.purpose, t.emailHash, t.createdAt)],
+);
 
 export const mailQueue = sqliteTable('mail_queue', {
   id: integer('id').primaryKey({ autoIncrement: true }),

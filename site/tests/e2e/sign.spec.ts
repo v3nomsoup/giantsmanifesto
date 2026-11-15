@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { mailIdsTo } from './mailpit';
 import {
   confirmPathFromMail,
+  endCooldown,
   fillSignForm,
   listedNames,
   queuedMailCount,
@@ -63,7 +64,8 @@ test('signing by email: form, mail, confirm by POST, then "already used" and "al
   );
   await expect(page.getByRole('button', { name: 'Confirm signature' })).toHaveCount(0);
 
-  // Signing again with the same address in different case.
+  // Signing again with the same address in different case, after the 15-minute cooldown.
+  endCooldown(signer.email, 'sign');
   await fillSignForm(page, { name: `${signer.name} again`, email: signer.email.toUpperCase() });
   await solveAltcha(page);
   await submitSignForm(page);
@@ -77,6 +79,37 @@ test('signing by email: form, mail, confirm by POST, then "already used" and "al
   const entryLink = page.getByRole('link', { name: 'See all signatures' });
   await expect(entryLink).toHaveAttribute('href', /^\/en\/signatures#signature-\d+$/);
   expect(await listedNames(request, signer.name)).toEqual([signer.name]);
+});
+
+test('a second request for the same address within 15 minutes looks the same and sends no mail', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const signer = uniqueSigner('cooldown');
+
+  async function requestSignature() {
+    await fillSignForm(page, signer);
+    await solveAltcha(page);
+    const posted = page.waitForResponse((r) => r.request().method() === 'POST');
+    await submitSignForm(page);
+    const response = await posted;
+    await expect(page).toHaveURL(/\/en\/sign\/check-email$/);
+    return {
+      status: response.status(),
+      location: response.headers().location,
+      body: await page.locator('main').textContent(),
+    };
+  }
+
+  const first = await requestSignature();
+  await confirmPathFromMail(signer.email);
+  const second = await requestSignature();
+  expect(first.status).toBe(303);
+  expect(second).toEqual(first);
+  expect(queuedMailCount(signer.email)).toBe(0);
+  await page.waitForTimeout(5_000);
+  expect(await mailIdsTo(signer.email.toLowerCase())).toHaveLength(1);
+  expect(queuedMailCount(signer.email)).toBe(0);
 });
 
 test('a form with an invalid email shows a focused error summary and keeps the name', async ({

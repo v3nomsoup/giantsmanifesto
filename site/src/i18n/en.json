@@ -63,7 +63,7 @@
     "imprint": "Imprint"
   },
   "mail": {
-    "greeting": "Hello {name},",
+    "greeting": "Hello,",
     "validity": "The link is valid for 48 hours.",
     "signOff": "The Shoulders of Giants Manifesto",
     "signConfirm": {
@@ -111,7 +111,8 @@
       "emailInvalid": "Enter a valid email address.",
       "consentRequired": "Agree to publication to sign.",
       "rateLimited": "Too many attempts from your connection. Wait 15 minutes, then try again.",
-      "altcha": "The automatic check against spam did not work. Please try again."
+      "altcha": "The automatic check against spam did not work. Please try again.",
+      "busy": "We're receiving a lot of requests right now. Please try again in an hour."
     }
   },
   "sign": {

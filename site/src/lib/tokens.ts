@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { and, eq, isNotNull, isNull, lt, or } from 'drizzle-orm';
+import { and, eq, gt, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import type { Db } from './db';
 import { emailTokens } from './db/schema';
 
@@ -13,19 +13,24 @@ export type TokenResult<T> =
 
 const hashToken = (raw: string) => createHash('sha256').update(raw).digest('hex');
 
-/** Creates a single-use token and returns the raw value. Only its hash is stored. */
+/**
+ * Creates a single-use token and returns the raw value. Only its hash is stored. A string
+ * `payload.emailHash` is also stored in its own column for the per-address cooldown.
+ */
 export function createToken(
-  db: Db,
+  db: Db | Tx,
   purpose: TokenPurpose,
   payload: unknown,
   now: number = Date.now(),
 ): string {
   const raw = randomBytes(32).toString('base64url');
+  const emailHash = (payload as { emailHash?: unknown } | null)?.emailHash;
   db.insert(emailTokens)
     .values({
       tokenHash: hashToken(raw),
       purpose,
       payload: JSON.stringify(payload ?? {}),
+      emailHash: typeof emailHash === 'string' ? emailHash : null,
       createdAt: now,
       expiresAt: now + TOKEN_TTL_MS,
     })
@@ -34,7 +39,7 @@ export function createToken(
 }
 
 type Row = typeof emailTokens.$inferSelect;
-type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
+export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
 
 function judge<T>(row: Row | undefined, now: number): TokenResult<T> {
   if (!row) return { ok: false, reason: 'invalid' };
@@ -85,6 +90,28 @@ export function consumeToken<T = unknown>(
     },
     { behavior: 'immediate' },
   );
+}
+
+/** Whether a token of this purpose for this address was created after `since`. */
+export function tokenCreatedSince(
+  db: Db | Tx,
+  purpose: TokenPurpose,
+  emailHash: string,
+  since: number,
+): boolean {
+  const row = db
+    .select({ id: emailTokens.id })
+    .from(emailTokens)
+    .where(
+      and(
+        eq(emailTokens.purpose, purpose),
+        eq(emailTokens.emailHash, emailHash),
+        gt(emailTokens.createdAt, since),
+      ),
+    )
+    .limit(1)
+    .get();
+  return row !== undefined;
 }
 
 /** Deletes expired and used tokens. Returns the number removed. */

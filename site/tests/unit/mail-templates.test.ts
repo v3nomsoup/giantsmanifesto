@@ -6,15 +6,18 @@ const link = 'https://x/en/sign/confirm?token=abc';
 
 describe('mail templates', () => {
   it('builds the sign confirmation mail', () => {
-    const mail = signConfirmMail('en', 'a@b.de', link, '<Ada>');
+    const mail = signConfirmMail('en', 'a@b.de', link);
     expect(mail.to).toBe('a@b.de');
     expect(mail.subject).toBe(t('en', 'mail.signConfirm.subject'));
     expect(mail.subject).not.toBe('');
     expect(mail.text).toContain(link);
-    expect(mail.text).toContain('<Ada>');
     expect(mail.html).toContain(link);
-    expect(mail.html).toContain('&lt;Ada&gt;');
-    expect(mail.html).not.toContain('<Ada>');
+  });
+
+  it('greets with "Hello," only, without the unconfirmed name', () => {
+    const mail = signConfirmMail('en', 'a@b.de', link);
+    expect(mail.text.startsWith('Hello,\n\n')).toBe(true);
+    expect(mail.html.startsWith('<p>Hello,</p>')).toBe(true);
   });
 
   it('builds the withdraw mail', () => {
