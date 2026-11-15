@@ -3,16 +3,20 @@ import { isLocale, localePath, t } from '../../../i18n';
 import Base from '../../../layouts/Base.astro';
 import { countryName } from '../../../lib/countries';
 import { getDb } from '../../../lib/db';
-import { createEmailSignature, type PendingEmailSignature } from '../../../lib/signatures';
-import { consumeToken, peekToken, type TokenResult } from '../../../lib/tokens';
+import { signByToken } from '../../../lib/sign';
+import type { PendingEmailSignature } from '../../../lib/signatures';
+import { peekToken, type TokenResult } from '../../../lib/tokens';
 
 export const prerender = false;
 
 const lang = Astro.params.lang;
 if (!isLocale(lang)) return new Response(null, { status: 404 });
 
+// Deliberately not gated on `signingEnabled`: links issued while signing was enabled stay
+// usable when it is paused.
 // A GET only looks at the token, so a mail scanner that opens the link signs nothing.
-// The signature is created on POST, and a used token there gets the "already used" page.
+// The signature is created on POST, together with spending the token. A used token there
+// gets the "already used" page.
 let token: string;
 let result: TokenResult<PendingEmailSignature>;
 if (Astro.request.method === 'POST') {
@@ -21,9 +25,8 @@ if (Astro.request.method === 'POST') {
     value = (await Astro.request.formData()).get('token');
   } catch {}
   token = typeof value === 'string' ? value : '';
-  result = consumeToken<PendingEmailSignature>(getDb(), token, 'sign');
-  if (result.ok) {
-    const outcome = createEmailSignature(getDb(), result.payload);
+  const outcome = signByToken(getDb(), token);
+  if (outcome.ok) {
     const thanks = localePath(lang, '/sign/thanks');
     // The id of the existing entry is no personal data and lets the page link to it.
     return Astro.redirect(
@@ -31,6 +34,7 @@ if (Astro.request.method === 'POST') {
       303,
     );
   }
+  result = outcome;
 } else {
   token = Astro.url.searchParams.get('token') ?? '';
   result = peekToken<PendingEmailSignature>(getDb(), token, 'sign');
