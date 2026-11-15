@@ -1,0 +1,83 @@
+---
+import { isLocale, localePath, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+import { countryName } from '../../../lib/countries';
+import { getDb } from '../../../lib/db';
+import { createEmailSignature, type PendingEmailSignature } from '../../../lib/signatures';
+import { consumeToken, peekToken, type TokenResult } from '../../../lib/tokens';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
+// A GET only looks at the token, so a mail scanner that opens the link signs nothing.
+// The signature is created on POST, and a used token there gets the "already used" page.
+let token: string;
+let result: TokenResult<PendingEmailSignature>;
+if (Astro.request.method === 'POST') {
+  let value: FormDataEntryValue | null = null;
+  try {
+    value = (await Astro.request.formData()).get('token');
+  } catch {}
+  token = typeof value === 'string' ? value : '';
+  result = consumeToken<PendingEmailSignature>(getDb(), token, 'sign');
+  if (result.ok) {
+    const outcome = createEmailSignature(getDb(), result.payload);
+    const thanks = localePath(lang, '/sign/thanks');
+    return Astro.redirect(outcome.created ? thanks : `${thanks}?already=1`, 303);
+  }
+} else {
+  token = Astro.url.searchParams.get('token') ?? '';
+  result = peekToken<PendingEmailSignature>(getDb(), token, 'sign');
+}
+
+const title = result.ok
+  ? t(lang, 'sign.confirm.title')
+  : result.reason === 'used'
+    ? t(lang, 'sign.confirm.used')
+    : t(lang, 'sign.confirm.invalid');
+const pending = result.ok ? result.payload : undefined;
+const used = !result.ok && result.reason === 'used';
+---
+
+<Base lang={lang} title={title} noindex>
+  <h1>{title}</h1>
+  {
+    pending ? (
+      <>
+        <p>{t(lang, 'sign.confirm.intro')}</p>
+        <dl class="summary">
+          <dt>{t(lang, 'sign.name')}</dt>
+          <dd>{pending.displayName}</dd>
+          {pending.affiliation && (
+            <>
+              <dt>{t(lang, 'sign.affiliation')}</dt>
+              <dd>{pending.affiliation}</dd>
+            </>
+          )}
+          {pending.country && (
+            <>
+              <dt>{t(lang, 'sign.country')}</dt>
+              <dd>{countryName(pending.country, lang)}</dd>
+            </>
+          )}
+        </dl>
+        <form method="post" action={localePath(lang, '/sign/confirm')}>
+          <input type="hidden" name="token" value={token} />
+          <button class="button" type="submit">{t(lang, 'sign.confirm.button')}</button>
+        </form>
+      </>
+    ) : used ? (
+      <>
+        <p>{t(lang, 'sign.confirm.usedText')}</p>
+        <p><a href={localePath(lang, '/signatures')}>{t(lang, 'sign.allSignatures')}</a></p>
+      </>
+    ) : (
+      <>
+        <p>{t(lang, 'sign.confirm.invalidText')}</p>
+        <p><a href={localePath(lang, '/sign')}>{t(lang, 'sign.confirm.signAgain')}</a></p>
+      </>
+    )
+  }
+</Base>

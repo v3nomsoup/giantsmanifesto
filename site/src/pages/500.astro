@@ -1,0 +1,15 @@
+---
+import { defaultLocale, localePath, t } from '../i18n';
+import Base from '../layouts/Base.astro';
+
+// Prerendered, so showing it cannot fail the way the page that just failed did.
+export const prerender = true;
+
+const lang = defaultLocale;
+---
+
+<Base lang={lang} title={t(lang, 'error.title')} noindex>
+  <h1>{t(lang, 'error.title')}</h1>
+  <p>{t(lang, 'error.text')}</p>
+  <p><a href={localePath(lang)}>{t(lang, 'error.home')}</a></p>
+</Base>

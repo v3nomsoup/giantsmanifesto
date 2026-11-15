@@ -1,0 +1,18 @@
+---
+import { isLocale, localePath, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
+const already = Astro.url.searchParams.get('already') === '1';
+const title = already ? t(lang, 'sign.thanks.already') : t(lang, 'sign.thanks.title');
+---
+
+<Base lang={lang} title={title} noindex>
+  <h1>{title}</h1>
+  <p>{already ? t(lang, 'sign.thanks.alreadyText') : t(lang, 'sign.thanks.text')}</p>
+  <p><a href={localePath(lang, '/signatures')}>{t(lang, 'sign.allSignatures')}</a></p>
+</Base>

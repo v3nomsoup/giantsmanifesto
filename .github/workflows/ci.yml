@@ -30,6 +30,10 @@ jobs:
   e2e:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    services:
+      mailpit:
+        image: axllent/mailpit
+        ports: ['1025:1025', '8025:8025']
     defaults:
       run:
         working-directory: site

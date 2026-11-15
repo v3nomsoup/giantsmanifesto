@@ -89,5 +89,62 @@
     "title": "Page not found",
     "text": "This page does not exist.",
     "home": "Back to the homepage"
+  },
+  "form": {
+    "optional": "(optional)",
+    "errorSummary": "There is a problem",
+    "errors": {
+      "nameRequired": "Enter your name.",
+      "nameTooLong": "Use at most 80 characters for your name.",
+      "affiliationTooLong": "Use at most 120 characters for your affiliation.",
+      "countryInvalid": "Choose a country from the list.",
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "consentRequired": "Agree to publication to sign.",
+      "rateLimited": "Too many attempts from your connection. Wait 15 minutes, then try again.",
+      "altcha": "The automatic check against spam did not work. Please try again."
+    }
+  },
+  "sign": {
+    "title": "Sign the manifesto",
+    "intro": "Sign with your name and confirm with your email address. Only your name, affiliation and country are published; your email address is not.",
+    "name": "Name",
+    "nameHint": "As it should appear in the list of signatures.",
+    "affiliation": "Affiliation",
+    "affiliationHint": "For example your employer, university or project.",
+    "country": "Country",
+    "noCountry": "No country",
+    "email": "Email address",
+    "emailHint": "We send you a link to confirm. The address is not published.",
+    "consent": "I agree that my name, affiliation and country will be published on this site.",
+    "submit": "Sign the manifesto",
+    "paused": "Signing opens soon.",
+    "checkEmail": {
+      "title": "Check your email",
+      "text": "We have sent you a link to confirm your signature. It is valid for 48 hours.",
+      "spam": "Nothing there after a few minutes? Check your spam folder, or sign again."
+    },
+    "confirm": {
+      "title": "Confirm your signature",
+      "intro": "Check your details, then confirm. Your signature is published once you confirm.",
+      "button": "Confirm signature",
+      "used": "This link was already used.",
+      "usedText": "Each confirmation link works once. If you confirmed, your signature is in the list.",
+      "invalid": "This link is not valid or has expired.",
+      "invalidText": "Confirmation links are valid for 48 hours. Sign again to get a new one.",
+      "signAgain": "Sign the manifesto again"
+    },
+    "thanks": {
+      "title": "Thank you for signing",
+      "text": "Your signature is now in the list.",
+      "already": "You have already signed.",
+      "alreadyText": "This email address was used to sign before, so your existing signature stays as it is."
+    },
+    "allSignatures": "See all signatures"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "text": "An unexpected error occurred on our side. Please try again later.",
+    "home": "Back to the homepage"
   }
 }
