@@ -27,7 +27,7 @@ At the registrar, point both names to the VPS:
 
 Signing and withdrawing stay **paused** (the pages show "Signing opens soon") until the steps below are done. Do them in this order.
 
-1. **Persistent storage.** In the application's **Persistent Storage**, add a volume mounted at `/data`. Use a Docker **named volume** (Coolify's default "Volume Name"), or a host path that is owned by uid 1000 (`node`, the user the container runs as). Without it SQLite cannot open its database in `/data`, `/healthz` returns 503 and the health check keeps the deploy from going live. The database lives there, so it also survives redeploys.
+1. **Persistent storage.** In the application's **Persistent Storage**, add a volume mounted at `/data`. Use a Docker **named volume** (Coolify's default "Volume Name"), or a host path that is owned by uid 1000 (`node`, the user the container runs as). Without a named volume (or host path) the data is not reliably kept across redeploys: the image only declares an anonymous volume, the deploy still goes live, and nothing warns you. A host path that is not owned by uid 1000 makes SQLite fail to open its database in `/data`, and `/healthz` answers 503. The database lives in `/data`, so with a proper volume it survives redeploys.
 2. **Environment variables** (runtime, not build variables):
    - `SESSION_SECRET`: a long random value, for example the output of `openssl rand -hex 32`.
    - `SMTP_HOST`, `SMTP_PORT` (default `587`), `SMTP_SECURE` (`true` for port 465), `SMTP_USER`, `SMTP_PASSWORD`: the outgoing mail server.
