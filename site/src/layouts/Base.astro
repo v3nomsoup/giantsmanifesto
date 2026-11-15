@@ -48,6 +48,7 @@ const canonical = new URL(canonicalPath, Astro.site);
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={metaDescription} />
     {!noindex && <meta property="og:url" content={canonical} />}
+    <slot name="head" />
   </head>
   <body class={wide ? 'wide' : undefined}>
     <a class="skip-link" href="#main">{t(lang, 'a11y.skip')}</a>

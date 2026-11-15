@@ -1,15 +1,33 @@
 ---
-import { type Locale, localePath, localeStaticPaths, t } from '../../i18n';
 import Convergence from '../../components/Convergence.astro';
+import SignatureList from '../../components/SignatureList.astro';
+import { isLocale, localePath, t } from '../../i18n';
 import Base from '../../layouts/Base.astro';
+import { readConfig, signingEnabled } from '../../lib/config';
+import { getDb } from '../../lib/db';
 import { loadManifesto } from '../../lib/manifesto';
+import { countSignatures, listSignatures } from '../../lib/signatures';
 import { COMPUTERKUNST_URL, INITIATOR_URL } from '../../lib/site';
 
-export const prerender = true;
-export const getStaticPaths = localeStaticPaths;
+export const prerender = false;
 
-const lang = Astro.params.lang as Locale;
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
 const manifesto = loadManifesto();
+const enabled = signingEnabled(readConfig());
+const db = getDb();
+const count = countSignatures(db);
+const newest = listSignatures(db, { page: 1, pageSize: 5 }).items;
+// While paused, nobody can be "the first to sign", so the line is left out until someone has.
+const countText =
+  count === 0
+    ? enabled
+      ? t(lang, 'home.countNone')
+      : undefined
+    : count === 1
+      ? t(lang, 'home.countOne')
+      : t(lang, 'home.count', { count: count.toLocaleString(lang) });
 const initiator = t(lang, 'home.aboutInitiator', {
   name: `<a href="${INITIATOR_URL}">Philipp Eckert</a>`,
   org: `<a href="${COMPUTERKUNST_URL}">Computerkunst e.V.</a>`,
@@ -33,11 +51,29 @@ const initiator = t(lang, 'home.aboutInitiator', {
         ))
       }
     </ul>
-    <p>
+    <p class="hero-actions">
       <a class="button" href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
+      {
+        enabled ? (
+          <a href={localePath(lang, '/sign')}>{t(lang, 'home.sign')}</a>
+        ) : (
+          <span class="signing-soon">{t(lang, 'home.signingSoon')}</span>
+        )
+      }
     </p>
+    {countText && <p class="home-count">{countText}</p>}
     <p class="meta">{t(lang, 'home.version', { version: manifesto.version })}</p>
   </section>
+
+  {
+    newest.length > 0 && (
+      <section class="newest" aria-labelledby="newest-title">
+        <h2 id="newest-title">{t(lang, 'home.newestTitle')}</h2>
+        <SignatureList lang={lang} items={newest} />
+        <p><a href={localePath(lang, '/signatures')}>{t(lang, 'home.allSignatures')}</a></p>
+      </section>
+    )
+  }
 
   <section class="prose" id="about" aria-labelledby="about-title">
     <h2 id="about-title">{t(lang, 'home.aboutTitle')}</h2>

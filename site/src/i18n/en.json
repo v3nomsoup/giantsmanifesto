@@ -16,6 +16,7 @@
   },
   "nav": {
     "manifesto": "Manifesto",
+    "signatures": "Signatures",
     "changelog": "Changelog",
     "contact": "Contact"
   },
@@ -24,11 +25,19 @@
     "contact": "Contact",
     "privacy": "Privacy",
     "imprint": "Imprint",
-    "source": "Source on GitHub"
+    "source": "Source on GitHub",
+    "withdraw": "Withdraw your signature"
   },
   "home": {
-    "readManifesto": "Read the full text",
+    "readManifesto": "Read the manifesto",
     "valuesLead": "We value:",
+    "sign": "Sign the manifesto",
+    "signingSoon": "Signing opens soon",
+    "countNone": "Be the first to sign.",
+    "countOne": "1 person has signed.",
+    "count": "{count} people have signed.",
+    "newestTitle": "Newest signatures",
+    "allSignatures": "All signatures",
     "version": "Version {version}",
     "aboutTitle": "Who's behind this",
     "aboutInitiator": "It was initiated by {name}, AI automation expert and chair of {org}, in a personal capacity.",
@@ -38,7 +47,8 @@
     "title": "Manifesto",
     "version": "Version {version}",
     "shapeText": "Something missing or wrong? Help shape the next version.",
-    "shapeLink": "Give feedback on GitHub"
+    "shapeLink": "Give feedback on GitHub",
+    "signLead": "Agree with what you have read? Add your name."
   },
   "changelog": {
     "title": "Changelog"
@@ -53,9 +63,146 @@
     "privacy": "Privacy policy",
     "imprint": "Imprint"
   },
+  "mail": {
+    "greeting": "Hello,",
+    "validity": "The link is valid for 48 hours.",
+    "signOff": "The Shoulders of Giants Manifesto",
+    "signConfirm": {
+      "subject": "Confirm your signature",
+      "intro": "Someone, hopefully you, asked to sign the Shoulders of Giants Manifesto with this email address. To confirm, open this link:",
+      "ignore": "If this wasn't you, ignore this email; nothing will be published."
+    },
+    "withdraw": {
+      "subject": "Withdraw your signature",
+      "intro": "Someone, hopefully you, asked to withdraw a signature of the Shoulders of Giants Manifesto made with this email address. To continue, open this link:",
+      "ignore": "If this wasn't you, ignore this email; nothing will change."
+    }
+  },
+  "altcha": {
+    "label": "I'm not a robot",
+    "verifying": "Verifying...",
+    "verified": "Verified",
+    "error": "Verification failed. Try again later.",
+    "expired": "Verification expired. Try again.",
+    "verificationRequired": "Verification required!",
+    "waitAlert": "Verifying... please wait.",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "reload": "Reload",
+    "verify": "Verify",
+    "ariaLinkLabel": "ALTCHA"
+  },
+  "honeypot": {
+    "label": "Leave this field empty"
+  },
   "notFound": {
     "title": "Page not found",
     "text": "This page does not exist.",
+    "home": "Back to the homepage"
+  },
+  "form": {
+    "optional": "(optional)",
+    "errorSummary": "There is a problem",
+    "errors": {
+      "nameRequired": "Enter your name.",
+      "nameTooLong": "Use at most 80 characters for your name.",
+      "affiliationTooLong": "Use at most 120 characters for your affiliation.",
+      "countryInvalid": "Choose a country from the list.",
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "consentRequired": "Agree to publication to sign.",
+      "rateLimited": "Too many attempts from your connection. Wait 15 minutes, then try again.",
+      "altcha": "The automatic check against spam did not work. Please try again.",
+      "busy": "We're receiving a lot of requests right now. Please try again in an hour."
+    }
+  },
+  "sign": {
+    "title": "Sign the manifesto",
+    "intro": "Sign with your name and confirm with your email address. Only your name, affiliation and country are published; your email address is not.",
+    "name": "Name",
+    "nameHint": "As it should appear in the list of signatures.",
+    "affiliation": "Affiliation",
+    "affiliationHint": "For example your employer, university or project.",
+    "country": "Country",
+    "noCountry": "No country",
+    "email": "Email address",
+    "emailHint": "We send you a link to confirm. The address is not published.",
+    "consent": "I agree that my name, affiliation and country will be published on this site.",
+    "submit": "Sign the manifesto",
+    "paused": "Signing opens soon.",
+    "checkEmail": {
+      "title": "Check your email",
+      "text": "We have sent you a link to confirm your signature. It is valid for 48 hours.",
+      "spam": "Nothing there after a few minutes? Check your spam folder, or sign again."
+    },
+    "confirm": {
+      "title": "Confirm your signature",
+      "intro": "Check your details, then confirm. Your signature is published once you confirm.",
+      "button": "Confirm signature",
+      "used": "This link was already used.",
+      "usedText": "Each confirmation link works once. If you confirmed, your signature is in the list.",
+      "invalid": "This link is not valid or has expired.",
+      "invalidText": "Confirmation links are valid for 48 hours. Sign again to get a new one.",
+      "signAgain": "Sign the manifesto again"
+    },
+    "thanks": {
+      "title": "Thank you for signing",
+      "text": "Your signature is now in the list.",
+      "already": "You have already signed.",
+      "alreadyText": "This email address was used to sign before, so your existing signature stays as it is."
+    },
+    "allSignatures": "See all signatures",
+    "withdrawLink": "Withdraw your signature"
+  },
+  "signatures": {
+    "title": "Signatures",
+    "searchLabel": "Search",
+    "searchHint": "By name or affiliation",
+    "searchButton": "Search",
+    "badge": {
+      "email": "Email confirmed"
+    },
+    "empty": "No one has signed yet.",
+    "noResults": "No signatures match your search.",
+    "showAll": "Show all signatures",
+    "pageEmpty": "There are no signatures on this page.",
+    "firstPage": "Back to the first page",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {pages}",
+    "pagesNav": "Pages"
+  },
+  "withdraw": {
+    "title": "Withdraw your signature",
+    "intro": "Enter the email address you signed with. If a signature exists for it, we send you a link to delete it. Your email address is not stored in readable form.",
+    "email": "Email address",
+    "submit": "Send me a link",
+    "paused": "Withdrawing opens soon, together with signing.",
+    "checkEmail": {
+      "title": "Check your email",
+      "text": "If a signature exists for this address, we sent a link to withdraw it. The link is valid for 48 hours.",
+      "spam": "Nothing there after a few minutes? Check your spam folder, or try again."
+    },
+    "confirm": {
+      "title": "Delete your signature",
+      "intro": "This is the signature that will be deleted. It disappears from the list as soon as you confirm.",
+      "button": "Delete my signature",
+      "used": "This link was already used.",
+      "usedText": "Each withdrawal link works once. If you used it, your signature is gone from the list.",
+      "invalid": "This link is not valid or has expired.",
+      "invalidText": "Withdrawal links are valid for 48 hours.",
+      "again": "Request a new link",
+      "none": "There is no signature for this address any more.",
+      "noneText": "It may have been deleted already. Nothing is left to withdraw."
+    },
+    "done": {
+      "title": "Your signature is deleted",
+      "text": "It is no longer in the list of signatures. You can sign again at any time."
+    }
+  },
+  "error": {
+    "title": "Something went wrong",
+    "text": "An unexpected error occurred on our side. Please try again later.",
     "home": "Back to the homepage"
   }
 }

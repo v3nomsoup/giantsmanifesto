@@ -10,6 +10,7 @@ interface Props {
 const { lang } = Astro.props;
 const links = [
   { href: localePath(lang, '/manifesto'), label: t(lang, 'nav.manifesto') },
+  { href: localePath(lang, '/signatures'), label: t(lang, 'nav.signatures') },
   { href: localePath(lang, '/changelog'), label: t(lang, 'nav.changelog') },
   { href: localePath(lang, '/contact'), label: t(lang, 'nav.contact') },
 ];

@@ -14,6 +14,7 @@ const { lang } = Astro.props;
     <ul>
       <li><a href={`${localePath(lang)}#about`}>{t(lang, 'footer.about')}</a></li>
       <li><a href={localePath(lang, '/contact')}>{t(lang, 'footer.contact')}</a></li>
+      <li><a href={localePath(lang, '/withdraw')}>{t(lang, 'footer.withdraw')}</a></li>
       <li><a href={localePath(lang, '/privacy')}>{t(lang, 'footer.privacy')}</a></li>
       <li><a href={localePath(lang, '/imprint')}>{t(lang, 'footer.imprint')}</a></li>
       <li><a href={GITHUB_URL}>{t(lang, 'footer.source')}</a></li>

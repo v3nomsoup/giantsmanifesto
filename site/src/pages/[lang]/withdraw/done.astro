@@ -1,0 +1,15 @@
+---
+import { isLocale, localePath, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+---
+
+<Base lang={lang} title={t(lang, 'withdraw.done.title')} noindex>
+  <h1>{t(lang, 'withdraw.done.title')}</h1>
+  <p>{t(lang, 'withdraw.done.text')}</p>
+  <p><a href={localePath(lang, '/signatures')}>{t(lang, 'sign.allSignatures')}</a></p>
+</Base>

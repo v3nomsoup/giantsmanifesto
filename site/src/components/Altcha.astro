@@ -1,0 +1,52 @@
+---
+import { type Locale, t } from '../i18n';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const keys = [
+  'label',
+  'verifying',
+  'verified',
+  'error',
+  'expired',
+  'verificationRequired',
+  'waitAlert',
+  'loading',
+  'cancel',
+  'reload',
+  'verify',
+  'ariaLinkLabel',
+] as const;
+const strings = Object.fromEntries(keys.map((key) => [key, t(lang, `altcha.${key}`)]));
+// No footer link to altcha.org, no logo, and no interaction signature: the widget then only
+// ever talks to /api/altcha on this origin.
+const configuration = JSON.stringify({
+  hideFooter: true,
+  hideLogo: true,
+  humanInteractionSignature: false,
+});
+---
+
+<div class="altcha-field" data-altcha-lang={lang} data-altcha-strings={JSON.stringify(strings)}>
+  <altcha-widget
+    challenge="/api/altcha"
+    name="altcha"
+    language={lang}
+    auto="onsubmit"
+    configuration={configuration}></altcha-widget>
+</div>
+
+<script>
+  import 'altcha';
+
+  // Strings come from our dictionary; the widget's built-in English is only a fallback.
+  for (const el of document.querySelectorAll<HTMLElement>('[data-altcha-strings]')) {
+    const lang = el.dataset.altchaLang ?? 'en';
+    const strings = JSON.parse(el.dataset.altchaStrings ?? '{}');
+    const registry = globalThis.$altcha.i18n;
+    registry.set(lang, { ...registry.get(lang), ...strings });
+  }
+</script>

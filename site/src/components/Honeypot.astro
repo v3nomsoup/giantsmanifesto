@@ -1,0 +1,16 @@
+---
+import { type Locale, t } from '../i18n';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+---
+
+<div class="hp-field" aria-hidden="true">
+  <label>
+    {t(lang, 'honeypot.label')}
+    <input type="text" name="website" tabindex="-1" autocomplete="off" />
+  </label>
+</div>

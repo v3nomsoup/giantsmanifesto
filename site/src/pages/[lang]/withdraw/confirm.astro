@@ -1,0 +1,95 @@
+---
+import { isLocale, localePath, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+import { countryName } from '../../../lib/countries';
+import { getDb } from '../../../lib/db';
+import { findByEmailHash } from '../../../lib/signatures';
+import { peekToken, type TokenResult } from '../../../lib/tokens';
+import { withdrawByToken } from '../../../lib/withdraw';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
+interface WithdrawPayload {
+  emailHash: string;
+}
+
+// Deliberately not gated on `signingEnabled`: withdrawing stays possible when signing is paused,
+// because the right to have a signature deleted must not depend on mail settings. The link was
+// issued earlier and is protected by its token.
+// A GET only looks at the token, so a mail scanner that opens the link deletes nothing.
+// The signature is deleted on POST, together with spending the token. A used token there
+// gets the "already used" page.
+let token: string;
+let result: TokenResult<WithdrawPayload>;
+if (Astro.request.method === 'POST') {
+  let value: FormDataEntryValue | null = null;
+  try {
+    value = (await Astro.request.formData()).get('token');
+  } catch {}
+  token = typeof value === 'string' ? value : '';
+  const outcome = withdrawByToken(getDb(), token);
+  // A valid token with no signature left (already deleted) is also "done".
+  if (outcome.ok) return Astro.redirect(localePath(lang, '/withdraw/done'), 303);
+  result = outcome;
+} else {
+  token = Astro.url.searchParams.get('token') ?? '';
+  result = peekToken<WithdrawPayload>(getDb(), token, 'withdraw');
+}
+
+const signature = result.ok ? findByEmailHash(getDb(), result.payload.emailHash) : undefined;
+const used = !result.ok && result.reason === 'used';
+const title = result.ok
+  ? signature
+    ? t(lang, 'withdraw.confirm.title')
+    : t(lang, 'withdraw.confirm.none')
+  : used
+    ? t(lang, 'withdraw.confirm.used')
+    : t(lang, 'withdraw.confirm.invalid');
+---
+
+<Base lang={lang} title={title} noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <h1>{title}</h1>
+  {
+    signature ? (
+      <>
+        <p>{t(lang, 'withdraw.confirm.intro')}</p>
+        <dl class="summary">
+          <dt>{t(lang, 'sign.name')}</dt>
+          <dd>{signature.displayName}</dd>
+          {signature.affiliation && (
+            <>
+              <dt>{t(lang, 'sign.affiliation')}</dt>
+              <dd>{signature.affiliation}</dd>
+            </>
+          )}
+          {signature.country && (
+            <>
+              <dt>{t(lang, 'sign.country')}</dt>
+              <dd>{countryName(signature.country, lang)}</dd>
+            </>
+          )}
+        </dl>
+        <form method="post" action={localePath(lang, '/withdraw/confirm')}>
+          <input type="hidden" name="token" value={token} />
+          <button class="button" type="submit">{t(lang, 'withdraw.confirm.button')}</button>
+        </form>
+      </>
+    ) : result.ok ? (
+      <p>{t(lang, 'withdraw.confirm.noneText')}</p>
+    ) : used ? (
+      <>
+        <p>{t(lang, 'withdraw.confirm.usedText')}</p>
+        <p><a href={localePath(lang, '/signatures')}>{t(lang, 'sign.allSignatures')}</a></p>
+      </>
+    ) : (
+      <>
+        <p>{t(lang, 'withdraw.confirm.invalidText')}</p>
+        <p><a href={localePath(lang, '/withdraw')}>{t(lang, 'withdraw.confirm.again')}</a></p>
+      </>
+    )
+  }
+</Base>

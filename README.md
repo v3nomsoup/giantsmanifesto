@@ -34,3 +34,13 @@ podman machine stop       # when done
 ```
 
 `--format docker` keeps the image's `HEALTHCHECK`; Podman's default OCI format drops it.
+
+### App with a local mail server
+
+`docker-compose.yml` starts the app and [Mailpit](https://mailpit.axllent.org), which catches all outgoing mail, with signing enabled:
+
+```bash
+docker compose up        # or: podman compose up
+```
+
+The site is at <http://localhost:3000>. Confirmation and withdrawal mails show up in the Mailpit UI at <http://localhost:8025>; the signatures live in the `data` volume.

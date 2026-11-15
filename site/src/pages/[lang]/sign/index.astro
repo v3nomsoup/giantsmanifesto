@@ -1,0 +1,240 @@
+---
+import Altcha from '../../../components/Altcha.astro';
+import Honeypot from '../../../components/Honeypot.astro';
+import { isLocale, localePath, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+import { readConfig, signingEnabled } from '../../../lib/config';
+import { countryOptions } from '../../../lib/countries';
+import { getDb } from '../../../lib/db';
+import { hashEmail, normalizeEmail } from '../../../lib/email';
+import {
+  AFFILIATION_MAX,
+  NAME_MAX,
+  parseSignatureForm,
+  type SignatureField,
+  type SignatureInput,
+} from '../../../lib/forms/signature-input';
+import { requestLinkMail } from '../../../lib/mail/request';
+import { signConfirmMail } from '../../../lib/mail/templates';
+import { loadManifesto } from '../../../lib/manifesto';
+import { clientIp } from '../../../lib/security/client-ip';
+import { checkFormGuards } from '../../../lib/security/guards';
+import type { PendingEmailSignature } from '../../../lib/signatures';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
+const config = readConfig();
+const enabled = signingEnabled(config);
+const checkEmailPath = localePath(lang, '/sign/check-email');
+
+// A POST while paused creates nothing; it gets the notice below with 503.
+if (!enabled && Astro.request.method === 'POST') Astro.response.status = 503;
+
+let values: SignatureInput = {
+  displayName: '',
+  affiliation: '',
+  country: '',
+  email: '',
+  consent: false,
+};
+let errors: Partial<Record<SignatureField, string>> = {};
+let formError: string | undefined;
+
+if (enabled && Astro.request.method === 'POST') {
+  let form: FormData;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    form = new FormData();
+  }
+  const guard = await checkFormGuards(
+    form,
+    clientIp(Astro.request, Astro.clientAddress, config.trustProxy),
+    config,
+  );
+  // A bot that filled the honeypot gets the same answer as a person, and nothing happens.
+  if (guard === 'honeypot') return Astro.redirect(checkEmailPath, 303);
+
+  const parsed = parseSignatureForm(form);
+  if (guard === 'rate_limited') formError = 'form.errors.rateLimited';
+  else if (guard === 'altcha') formError = 'form.errors.altcha';
+  else if (parsed.ok) {
+    const { displayName, affiliation, country, email } = parsed.value;
+    const db = getDb();
+    const now = Date.now();
+    const pending: PendingEmailSignature = {
+      displayName,
+      affiliation,
+      country,
+      emailHash: hashEmail(email),
+      manifestoVersion: loadManifesto().version,
+      consentAt: now,
+    };
+    const confirmUrl = `${config.siteUrl.replace(/\/$/, '')}${localePath(lang, '/sign/confirm')}`;
+    // Within the cooldown nothing is created, but the answer is the same redirect.
+    const outcome = requestLinkMail(
+      db,
+      {
+        purpose: 'sign',
+        payload: pending,
+        build: (token) =>
+          signConfirmMail(lang, normalizeEmail(email), `${confirmUrl}?token=${token}`),
+      },
+      now,
+    );
+    if (outcome !== 'busy') return Astro.redirect(checkEmailPath, 303);
+    formError = 'form.errors.busy';
+  }
+  values = parsed.ok ? parsed.value : parsed.values;
+  if (!parsed.ok && !formError) errors = parsed.errors;
+  Astro.response.status =
+    guard === 'rate_limited' ? 429 : formError === 'form.errors.busy' ? 503 : 400;
+}
+
+const fieldOrder: SignatureField[] = ['displayName', 'affiliation', 'country', 'email', 'consent'];
+const errorList = fieldOrder.flatMap((field) => {
+  const key = errors[field];
+  return key ? [{ field, message: t(lang, key) }] : [];
+});
+const errorId = (field: SignatureField) => `${field}-error`;
+const describedBy = (field: SignatureField, hint?: string) =>
+  [errors[field] && errorId(field), hint].filter(Boolean).join(' ') || undefined;
+const invalid = (field: SignatureField) => (errors[field] ? 'true' : undefined);
+const countries = countryOptions(lang);
+const optional = t(lang, 'form.optional');
+---
+
+<Base lang={lang} title={t(lang, 'sign.title')} noindex>
+  <h1>{t(lang, 'sign.title')}</h1>
+  {
+    !enabled ? (
+      <p class="notice">{t(lang, 'sign.paused')}</p>
+    ) : (
+      <>
+        <p>{t(lang, 'sign.intro')}</p>
+        {errorList.length > 0 && (
+          <div id="form-errors" class="notice notice--error" tabindex="-1" aria-labelledby="form-errors-title">
+            <h2 id="form-errors-title">{t(lang, 'form.errorSummary')}</h2>
+            <ul>
+              {errorList.map((error) => (
+                <li>
+                  <a href={`#${error.field}`}>{error.message}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {formError && (
+          <div id="form-errors" class="notice notice--error" tabindex="-1" role="alert">
+            <p>{t(lang, formError)}</p>
+          </div>
+        )}
+        <form class="form" method="post" novalidate>
+          <div class="field">
+            <label for="displayName">{t(lang, 'sign.name')}</label>
+            <p class="field-hint" id="displayName-hint">{t(lang, 'sign.nameHint')}</p>
+            {errors.displayName && (
+              <p class="field-error" id={errorId('displayName')}>{t(lang, errors.displayName)}</p>
+            )}
+            <input
+              type="text"
+              id="displayName"
+              name="displayName"
+              value={values.displayName}
+              maxlength={NAME_MAX}
+              autocomplete="name"
+              required
+              aria-describedby={describedBy('displayName', 'displayName-hint')}
+              aria-invalid={invalid('displayName')}
+            />
+          </div>
+          <div class="field">
+            <label for="affiliation">
+              {t(lang, 'sign.affiliation')} <span class="optional">{optional}</span>
+            </label>
+            <p class="field-hint" id="affiliation-hint">{t(lang, 'sign.affiliationHint')}</p>
+            {errors.affiliation && (
+              <p class="field-error" id={errorId('affiliation')}>{t(lang, errors.affiliation)}</p>
+            )}
+            <input
+              type="text"
+              id="affiliation"
+              name="affiliation"
+              value={values.affiliation}
+              maxlength={AFFILIATION_MAX}
+              autocomplete="organization"
+              aria-describedby={describedBy('affiliation', 'affiliation-hint')}
+              aria-invalid={invalid('affiliation')}
+            />
+          </div>
+          <div class="field">
+            <label for="country">
+              {t(lang, 'sign.country')} <span class="optional">{optional}</span>
+            </label>
+            {errors.country && (
+              <p class="field-error" id={errorId('country')}>{t(lang, errors.country)}</p>
+            )}
+            <select
+              id="country"
+              name="country"
+              aria-describedby={describedBy('country')}
+              aria-invalid={invalid('country')}
+            >
+              <option value="">{t(lang, 'sign.noCountry')}</option>
+              {countries.map((country) => (
+                <option value={country.code} selected={values.country === country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div class="field">
+            <label for="email">{t(lang, 'sign.email')}</label>
+            <p class="field-hint" id="email-hint">{t(lang, 'sign.emailHint')}</p>
+            {errors.email && (
+              <p class="field-error" id={errorId('email')}>{t(lang, errors.email)}</p>
+            )}
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={values.email}
+              autocomplete="email"
+              spellcheck="false"
+              required
+              aria-describedby={describedBy('email', 'email-hint')}
+              aria-invalid={invalid('email')}
+            />
+          </div>
+          <div class="field">
+            {errors.consent && (
+              <p class="field-error" id={errorId('consent')}>{t(lang, errors.consent)}</p>
+            )}
+            <div class="field-check">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                checked={values.consent}
+                required
+                aria-describedby={describedBy('consent')}
+                aria-invalid={invalid('consent')}
+              />
+              <label for="consent">{t(lang, 'sign.consent')}</label>
+            </div>
+          </div>
+          <Honeypot lang={lang} />
+          <Altcha lang={lang} />
+          <button class="button" type="submit">{t(lang, 'sign.submit')}</button>
+        </form>
+      </>
+    )
+  }
+</Base>
+
+<script>
+  document.getElementById('form-errors')?.focus();
+</script>

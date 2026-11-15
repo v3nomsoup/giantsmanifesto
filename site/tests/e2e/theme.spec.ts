@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { solveAltcha } from './signing';
 
 const publicPages = [
   '/en/',
@@ -7,6 +8,15 @@ const publicPages = [
   '/en/contact',
   '/en/privacy',
   '/en/imprint',
+];
+
+const signingPages = [
+  '/en/sign/check-email',
+  '/en/sign/confirm?token=nope',
+  '/en/sign/thanks',
+  '/en/withdraw/check-email',
+  '/en/withdraw/confirm?token=nope',
+  '/en/withdraw/done',
 ];
 
 const bodyBg = (page: import('@playwright/test').Page) =>
@@ -87,11 +97,20 @@ test('no request leaves our origin', async ({ page, baseURL }) => {
   for (const path of publicPages) {
     await page.goto(path);
   }
+  for (const path of signingPages) {
+    await page.goto(path);
+  }
+  // The sign form loads the ALTCHA widget, fetches a challenge and solves it in workers.
+  await page.goto('/en/sign');
+  await solveAltcha(page);
+  await page.goto('/en/withdraw');
+  await solveAltcha(page);
   const notFound = await page.goto('/en/nope');
   expect(notFound?.status()).toBe(404);
   expect(urls.length).toBeGreaterThan(0);
   for (const url of urls) {
-    expect(url.startsWith(baseURL ?? '') || url.startsWith('data:')).toBe(true);
+    const ours = url.startsWith(baseURL ?? '') || url.startsWith(`blob:${baseURL}`);
+    expect(ours || url.startsWith('data:'), url).toBe(true);
   }
 });
 

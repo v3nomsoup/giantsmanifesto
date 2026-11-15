@@ -1,0 +1,129 @@
+---
+import Altcha from '../../../components/Altcha.astro';
+import Honeypot from '../../../components/Honeypot.astro';
+import { isLocale, localePath, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+import { readConfig, signingEnabled } from '../../../lib/config';
+import { getDb } from '../../../lib/db';
+import { hashEmail, isValidEmail, normalizeEmail } from '../../../lib/email';
+import { requestLinkMail } from '../../../lib/mail/request';
+import { withdrawMail } from '../../../lib/mail/templates';
+import { clientIp } from '../../../lib/security/client-ip';
+import { checkFormGuards } from '../../../lib/security/guards';
+import { findByEmailHash } from '../../../lib/signatures';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+
+const config = readConfig();
+const enabled = signingEnabled(config);
+const checkEmailPath = localePath(lang, '/withdraw/check-email');
+
+// A POST while paused creates nothing; it gets the notice below with 503.
+if (!enabled && Astro.request.method === 'POST') Astro.response.status = 503;
+
+let email = '';
+let emailError: string | undefined;
+let formError: string | undefined;
+
+if (enabled && Astro.request.method === 'POST') {
+  let form: FormData;
+  try {
+    form = await Astro.request.formData();
+  } catch {
+    form = new FormData();
+  }
+  const guard = await checkFormGuards(
+    form,
+    clientIp(Astro.request, Astro.clientAddress, config.trustProxy),
+    config,
+  );
+  // A bot that filled the honeypot gets the same answer as a person, and nothing happens.
+  if (guard === 'honeypot') return Astro.redirect(checkEmailPath, 303);
+
+  const submitted = form.get('email');
+  email = typeof submitted === 'string' ? submitted.trim() : '';
+  if (guard === 'rate_limited') formError = 'form.errors.rateLimited';
+  else if (guard === 'altcha') formError = 'form.errors.altcha';
+  else if (email === '') emailError = 'form.errors.emailRequired';
+  else if (!isValidEmail(email)) emailError = 'form.errors.emailInvalid';
+  else {
+    // Every valid address gets the same answer. Whether a signature exists (or a link was
+    // sent in the last 15 minutes) must not show in the status, the redirect or the page; the
+    // mail is the only difference. A full queue answers "busy" for every address alike.
+    const db = getDb();
+    const emailHash = hashEmail(email);
+    const confirmUrl = `${config.siteUrl.replace(/\/$/, '')}${localePath(lang, '/withdraw/confirm')}`;
+    const outcome = requestLinkMail(db, {
+      purpose: 'withdraw',
+      payload: { emailHash },
+      send: Boolean(findByEmailHash(db, emailHash)),
+      build: (token) => withdrawMail(lang, normalizeEmail(email), `${confirmUrl}?token=${token}`),
+    });
+    if (outcome !== 'busy') return Astro.redirect(checkEmailPath, 303);
+    formError = 'form.errors.busy';
+  }
+  Astro.response.status =
+    guard === 'rate_limited' ? 429 : formError === 'form.errors.busy' ? 503 : 400;
+}
+
+const message = emailError && t(lang, emailError);
+---
+
+<Base lang={lang} title={t(lang, 'withdraw.title')} noindex>
+  <h1>{t(lang, 'withdraw.title')}</h1>
+  {
+    !enabled ? (
+      <p class="notice">{t(lang, 'withdraw.paused')}</p>
+    ) : (
+      <>
+        <p>{t(lang, 'withdraw.intro')}</p>
+        {message && (
+          <div id="form-errors" class="notice notice--error" tabindex="-1" aria-labelledby="form-errors-title">
+            <h2 id="form-errors-title">{t(lang, 'form.errorSummary')}</h2>
+            <ul>
+              <li>
+                <a href="#email">{message}</a>
+              </li>
+            </ul>
+          </div>
+        )}
+        {formError && (
+          <div id="form-errors" class="notice notice--error" tabindex="-1" role="alert">
+            <p>{t(lang, formError)}</p>
+          </div>
+        )}
+        <form class="form" method="post" novalidate>
+          <div class="field">
+            <label for="email">{t(lang, 'withdraw.email')}</label>
+            {message && (
+              <p class="field-error" id="email-error">
+                {message}
+              </p>
+            )}
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              autocomplete="email"
+              spellcheck="false"
+              required
+              aria-describedby={message ? 'email-error' : undefined}
+              aria-invalid={message ? 'true' : undefined}
+            />
+          </div>
+          <Honeypot lang={lang} />
+          <Altcha lang={lang} />
+          <button class="button" type="submit">{t(lang, 'withdraw.submit')}</button>
+        </form>
+      </>
+    )
+  }
+</Base>
+
+<script>
+  document.getElementById('form-errors')?.focus();
+</script>

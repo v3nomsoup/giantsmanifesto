@@ -1,0 +1,40 @@
+---
+import { type Locale, t } from '../i18n';
+import { countryName } from '../lib/countries';
+import type { PublicSignature } from '../lib/signatures';
+
+interface Props {
+  lang: Locale;
+  items: PublicSignature[];
+  /** Show the date and the "Email confirmed" badge (the full list); the homepage teaser omits them. */
+  detailed?: boolean;
+}
+
+const { lang, items, detailed = false } = Astro.props;
+// UTC, so the date does not depend on the server's time zone.
+const formatDate = (ms: number) =>
+  new Date(ms).toLocaleDateString(lang, { dateStyle: 'medium', timeZone: 'UTC' });
+const isoDate = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+---
+
+<ul class="signature-list">
+  {
+    items.map((item) => {
+      const place = [item.affiliation, item.country && countryName(item.country, lang)].filter(Boolean);
+      return (
+        <li id={`signature-${item.id}`}>
+          <strong class="signature-name">{item.displayName}</strong>
+          {place.length > 0 && <span class="signature-place">{place.join(' · ')}</span>}
+          {detailed && (
+            <span class="signature-meta">
+              <time datetime={isoDate(item.createdAt)}>{formatDate(item.createdAt)}</time>
+              {item.provider === 'email' && (
+                <span class="badge">{t(lang, 'signatures.badge.email')}</span>
+              )}
+            </span>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>

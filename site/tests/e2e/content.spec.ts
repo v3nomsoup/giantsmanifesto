@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { seedSignatures, signatureCount } from './signing';
 
 test('root redirects to the English homepage', async ({ page, request }) => {
   await page.goto('/');
@@ -70,8 +71,89 @@ test('homepage shows the core statement, values, a link to the full text and who
   const common = page.locator('.values li', { hasText: 'Common good' });
   await expect(common.getByText('Common good', { exact: true })).toBeVisible();
   await expect(common.getByText('over private profit')).toBeVisible();
-  await page.getByRole('link', { name: 'Read the full text' }).click();
+  await page.getByRole('link', { name: 'Read the manifesto' }).click();
   await expect(page).toHaveURL(/\/en\/manifesto$/);
+});
+
+test('homepage has Read the manifesto as the button and the sign link as plain text', async ({
+  page,
+}) => {
+  await page.goto('/en/');
+  const read = page.getByRole('link', { name: 'Read the manifesto' });
+  await expect(read).toHaveAttribute('href', '/en/manifesto');
+  await expect(read).toHaveClass(/button/);
+  const sign = page.locator('.hero-actions').getByRole('link', { name: 'Sign the manifesto' });
+  await expect(sign).toHaveAttribute('href', '/en/sign');
+  await expect(sign).not.toHaveClass(/button/);
+});
+
+test('the manifesto page ends with a Sign button after the text', async ({ page }) => {
+  await page.goto('/en/manifesto');
+  const sign = page
+    .locator('article .manifesto-sign')
+    .getByRole('link', { name: 'Sign the manifesto' });
+  await expect(sign).toHaveAttribute('href', '/en/sign');
+  await expect(sign).toHaveClass(/button/);
+});
+
+test('homepage shows the signature count of the database and the newest five signatures', async ({
+  page,
+}) => {
+  // Far in the future, so they stay the newest however many signatures other specs add.
+  const future = Date.now() + 10 * 365 * 24 * 3600 * 1000;
+  const names = Array.from({ length: 6 }, (_, i) => `Newest ${i} ${future}`);
+  seedSignatures(
+    names.map((displayName, i) => ({
+      displayName,
+      affiliation: i === 5 ? 'Analytical Engines' : '',
+      country: i === 5 ? 'GB' : '',
+      createdAt: future + i,
+    })),
+  );
+
+  await page.goto('/en/');
+  // Other specs sign in parallel, so compare against the database and retry on a race.
+  await expect(async () => {
+    await page.reload();
+    const count = signatureCount();
+    await expect(page.locator('.home-count')).toHaveText(
+      `${count.toLocaleString('en')} people have signed.`,
+    );
+  }).toPass();
+
+  const items = page.locator('.signature-list > li');
+  await expect(items).toHaveCount(5);
+  await expect(items.nth(0)).toContainText(names[5] ?? '');
+  await expect(items.nth(0)).toContainText('Analytical Engines');
+  await expect(items.nth(0)).toContainText('United Kingdom');
+  await expect(items.nth(4)).toContainText(names[1] ?? '');
+  await expect(page.getByText(names[0] ?? '')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'All signatures' })).toHaveAttribute(
+    'href',
+    '/en/signatures',
+  );
+});
+
+test('the main navigation has Manifesto, Signatures, Changelog and Contact in that order', async ({
+  page,
+}) => {
+  await page.goto('/en/');
+  const links = page.getByRole('navigation', { name: 'Main' }).getByRole('link');
+  await expect(links).toHaveText(['Manifesto', 'Signatures', 'Changelog', 'Contact']);
+  await expect(links.nth(1)).toHaveAttribute('href', '/en/signatures');
+});
+
+test('the footer links to withdrawing a signature', async ({ page }) => {
+  await page.goto('/en/');
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Footer' })
+      .getByRole('link', { name: 'Withdraw your signature' }),
+  ).toHaveAttribute('href', '/en/withdraw');
+});
+
+test('homepage under an unknown locale is 404', async ({ request }) => {
+  expect((await request.get('/xx/')).status()).toBe(404);
 });
 
 test('about section names the initiator in a personal capacity', async ({ page }) => {

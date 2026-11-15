@@ -1,14 +1,50 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
+import {
+  fillSignForm,
+  seedSignatures,
+  seedWithdrawLink,
+  solveAltcha,
+  submitSignForm,
+} from './signing';
 
 const publicPages = [
   '/en/',
   '/en/manifesto',
+  '/en/signatures',
+  '/en/signatures?q=no-such-signature-anywhere',
   '/en/changelog',
   '/en/contact',
   '/en/privacy',
   '/en/imprint',
+  '/en/sign',
+  '/en/sign/check-email',
+  '/en/sign/confirm?token=nope',
+  '/en/sign/thanks',
+  '/en/sign/thanks?already=1',
+  '/en/withdraw',
+  '/en/withdraw/check-email',
+  '/en/withdraw/confirm?token=nope',
+  '/en/withdraw/done',
 ];
+
+// The list pages are checked with entries, as well as empty (the no-match search above).
+test.beforeAll(() => {
+  seedSignatures([
+    { displayName: 'Ada Lovelace', affiliation: 'Analytical Engines', country: 'GB' },
+    { displayName: 'Grace Hopper', country: 'US' },
+    { displayName: 'No details' },
+  ]);
+});
+
+/** The sign form after a submission with errors in several fields. */
+async function showSignFormErrors(page: Page) {
+  await fillSignForm(page, { name: '   ', email: 'not-an-email' });
+  await page.getByLabel(/^I agree/).uncheck();
+  await solveAltcha(page);
+  await submitSignForm(page);
+  await expect(page.locator('#form-errors')).toBeFocused();
+}
 
 for (const colorScheme of ['light', 'dark'] as const) {
   test.describe(`${colorScheme} mode`, () => {
@@ -22,6 +58,21 @@ for (const colorScheme of ['light', 'dark'] as const) {
         expect(results.violations).toEqual([]);
       });
     }
+
+    test('the sign form with errors has no accessibility violations', async ({ page }) => {
+      await showSignFormErrors(page);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
+
+    test('the withdraw confirm page with a valid link has no accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto(seedWithdrawLink());
+      await expect(page.getByRole('button', { name: 'Delete my signature' })).toBeVisible();
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
   });
 }
 
@@ -31,6 +82,23 @@ for (const theme of ['light', 'dark'] as const) {
       await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
       const response = await page.goto('/en/nope');
       expect(response?.status()).toBe(404);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
+
+    test('the sign form with errors has no accessibility violations', async ({ page }) => {
+      await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
+      await showSignFormErrors(page);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
+
+    test('the withdraw confirm page with a valid link has no accessibility violations', async ({
+      page,
+    }) => {
+      await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
+      await page.goto(seedWithdrawLink());
+      await expect(page.getByRole('button', { name: 'Delete my signature' })).toBeVisible();
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations).toEqual([]);
     });

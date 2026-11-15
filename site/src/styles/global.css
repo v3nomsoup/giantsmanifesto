@@ -8,6 +8,7 @@
   --accent: #2c6ba3;
   --btn: #1e242b;
   --btn-fg: #ffffff;
+  --error: #a3262a;
   --font-ui: "Hanken Grotesk", system-ui, sans-serif;
   --font-text: "Literata", Georgia, serif;
   --measure: 52rem;
@@ -25,6 +26,7 @@
     --accent: #7db3e3;
     --btn: #e4e9ee;
     --btn-fg: #151a20;
+    --error: #f29b9b;
     color-scheme: dark;
   }
 }
@@ -39,6 +41,7 @@
   --accent: #7db3e3;
   --btn: #e4e9ee;
   --btn-fg: #151a20;
+  --error: #f29b9b;
   color-scheme: dark;
 }
 
@@ -494,4 +497,274 @@ section + section {
 
 :root[data-theme="dark"] .theme-toggle .icon-moon {
   display: none;
+}
+
+/* Honeypot: off-screen rather than display:none, which many bots skip. */
+.hp-field {
+  position: absolute;
+  left: -999rem;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ALTCHA widget, mapped to the site tokens so it follows the theme. */
+altcha-widget {
+  --altcha-color-base: var(--bg);
+  --altcha-color-base-content: var(--fg);
+  --altcha-color-neutral: var(--surface);
+  --altcha-color-neutral-content: var(--fg);
+  --altcha-color-primary: var(--accent);
+  --altcha-color-primary-content: var(--bg);
+  --altcha-border-color: var(--line);
+  --altcha-max-width: 20rem;
+  font-family: var(--font-ui);
+}
+
+/* Forms: one column, labels above fields, left aligned. */
+.form {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 36rem;
+  margin-top: 2rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field .optional {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.field-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.field :is(input[type="text"], input[type="email"], select) {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.field [aria-invalid="true"] {
+  border: 2px solid var(--error);
+}
+
+.field-check {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.field-check label {
+  font-weight: 400;
+}
+
+.field-check input {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--accent);
+}
+
+.field-error {
+  margin: 0;
+  color: var(--error);
+  font-weight: 600;
+}
+
+.form .button {
+  justify-self: start;
+  border: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.notice {
+  margin-block: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  background: var(--surface);
+}
+
+.notice > :first-child {
+  margin-top: 0;
+}
+
+.notice > :last-child {
+  margin-bottom: 0;
+}
+
+.notice--error {
+  border-left-color: var(--error);
+}
+
+.notice h2 {
+  margin-top: 0;
+  font-size: 1.15rem;
+}
+
+.notice ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.summary dt {
+  color: var(--muted);
+}
+
+.summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Homepage actions: the manifesto as the button first, signing as a plain link next to it. */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  margin-block: 0 1rem;
+  font-family: var(--font-ui);
+}
+
+.hero-actions > a:not(.button) {
+  font-weight: 600;
+}
+
+.manifesto-sign {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  margin-block: 2.5rem;
+  font-family: var(--font-ui);
+}
+
+.manifesto-sign p {
+  margin: 0;
+}
+
+.signing-soon {
+  padding-block: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.home-count {
+  margin-block: 0 0.5rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+/* Signature lists: one entry per row, name first. */
+.signature-list {
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+}
+
+.signature-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1rem;
+  align-items: baseline;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+  scroll-margin-top: 1.5rem;
+}
+
+.signature-list li:target {
+  background: var(--surface);
+}
+
+.signature-place {
+  color: var(--muted);
+}
+
+.signature-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.badge {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 36rem;
+  margin-top: 1.5rem;
+  font-family: var(--font-ui);
+}
+
+.search label {
+  flex-basis: 100%;
+  font-weight: 600;
+}
+
+.search input[type="search"] {
+  flex: 1 1 12rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.search .button {
+  border: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.search .field-hint {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block: 1.5rem;
+  font-family: var(--font-ui);
 }
