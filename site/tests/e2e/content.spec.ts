@@ -71,18 +71,29 @@ test('homepage shows the core statement, values, a link to the full text and who
   const common = page.locator('.values li', { hasText: 'Common good' });
   await expect(common.getByText('Common good', { exact: true })).toBeVisible();
   await expect(common.getByText('over private profit')).toBeVisible();
-  await page.getByRole('link', { name: 'Read the full text' }).click();
+  await page.getByRole('link', { name: 'Read the manifesto' }).click();
   await expect(page).toHaveURL(/\/en\/manifesto$/);
 });
 
-test('homepage has the Sign button as the primary action and the read link as plain text', async ({
+test('homepage has Read the manifesto as the button and the sign link as plain text', async ({
   page,
 }) => {
   await page.goto('/en/');
-  const sign = page.getByRole('link', { name: 'Sign the manifesto' });
+  const read = page.getByRole('link', { name: 'Read the manifesto' });
+  await expect(read).toHaveAttribute('href', '/en/manifesto');
+  await expect(read).toHaveClass(/button/);
+  const sign = page.locator('.hero-actions').getByRole('link', { name: 'Sign the manifesto' });
+  await expect(sign).toHaveAttribute('href', '/en/sign');
+  await expect(sign).not.toHaveClass(/button/);
+});
+
+test('the manifesto page ends with a Sign button after the text', async ({ page }) => {
+  await page.goto('/en/manifesto');
+  const sign = page
+    .locator('article .manifesto-sign')
+    .getByRole('link', { name: 'Sign the manifesto' });
   await expect(sign).toHaveAttribute('href', '/en/sign');
   await expect(sign).toHaveClass(/button/);
-  await expect(page.getByRole('link', { name: 'Read the full text' })).not.toHaveClass(/button/);
 });
 
 test('homepage shows the signature count of the database and the newest five signatures', async ({

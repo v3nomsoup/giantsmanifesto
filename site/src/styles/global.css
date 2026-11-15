@@ -640,7 +640,7 @@ altcha-widget {
   overflow-wrap: anywhere;
 }
 
-/* Homepage actions: the Sign button first, the full text as a plain link. */
+/* Homepage actions: the manifesto as the button first, signing as a plain link next to it. */
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -652,6 +652,19 @@ altcha-widget {
 
 .hero-actions > a:not(.button) {
   font-weight: 600;
+}
+
+.manifesto-sign {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  margin-block: 2.5rem;
+  font-family: var(--font-ui);
+}
+
+.manifesto-sign p {
+  margin: 0;
 }
 
 .signing-soon {

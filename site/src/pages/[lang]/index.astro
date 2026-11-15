@@ -52,14 +52,14 @@ const initiator = t(lang, 'home.aboutInitiator', {
       }
     </ul>
     <p class="hero-actions">
+      <a class="button" href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
       {
         enabled ? (
-          <a class="button" href={localePath(lang, '/sign')}>{t(lang, 'home.sign')}</a>
+          <a href={localePath(lang, '/sign')}>{t(lang, 'home.sign')}</a>
         ) : (
           <span class="signing-soon">{t(lang, 'home.signingSoon')}</span>
         )
       }
-      <a href={localePath(lang, '/manifesto')}>{t(lang, 'home.readManifesto')}</a>
     </p>
     {countText && <p class="home-count">{countText}</p>}
     <p class="meta">{t(lang, 'home.version', { version: manifesto.version })}</p>

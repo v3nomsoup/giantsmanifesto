@@ -29,7 +29,7 @@
     "withdraw": "Withdraw your signature"
   },
   "home": {
-    "readManifesto": "Read the full text",
+    "readManifesto": "Read the manifesto",
     "valuesLead": "We value:",
     "sign": "Sign the manifesto",
     "signingSoon": "Signing opens soon",
@@ -47,7 +47,8 @@
     "title": "Manifesto",
     "version": "Version {version}",
     "shapeText": "Something missing or wrong? Help shape the next version.",
-    "shapeLink": "Give feedback on GitHub"
+    "shapeLink": "Give feedback on GitHub",
+    "signLead": "Agree with what you have read? Add your name."
   },
   "changelog": {
     "title": "Changelog"

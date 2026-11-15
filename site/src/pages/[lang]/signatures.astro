@@ -13,6 +13,8 @@ if (!isLocale(lang)) return new Response(null, { status: 404 });
 const PAGE_SIZE = 50;
 const QUERY_MAX = 100;
 const PAGE_MAX = 1_000_000;
+// The search box appears once the list outgrows one page; a search link keeps working before that.
+const SEARCH_FROM = 51;
 
 const query = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, QUERY_MAX).trim();
 // Anything that is not a positive whole number is page 1.
@@ -22,7 +24,9 @@ const page = /^\d{1,7}$/.test(rawPage) ? Math.min(Math.max(1, Number(rawPage)), 
 const db = getDb();
 const { items, total } = listSignatures(db, { query, page, pageSize: PAGE_SIZE });
 const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-const overall = query ? total : countSignatures(db);
+const allCount = countSignatures(db);
+const overall = query ? total : allCount;
+const showSearch = allCount >= SEARCH_FROM || query !== '';
 
 const listPath = localePath(lang, '/signatures');
 const pageHref = (target: number) => {
@@ -45,12 +49,16 @@ const countText =
 <Base lang={lang} title={t(lang, 'signatures.title')} noindex={noindex}>
   <h1>{t(lang, 'signatures.title')}</h1>
   {!query && countText && <p class="home-count">{countText}</p>}
-  <form class="search" method="get" action={listPath} role="search">
-    <label for="q">{t(lang, 'signatures.searchLabel')}</label>
-    <input type="search" id="q" name="q" value={query} maxlength={QUERY_MAX} aria-describedby="q-hint" />
-    <button class="button" type="submit">{t(lang, 'signatures.searchButton')}</button>
-    <p class="field-hint" id="q-hint">{t(lang, 'signatures.searchHint')}</p>
-  </form>
+  {
+    showSearch && (
+      <form class="search" method="get" action={listPath} role="search">
+        <label for="q">{t(lang, 'signatures.searchLabel')}</label>
+        <input type="search" id="q" name="q" value={query} maxlength={QUERY_MAX} aria-describedby="q-hint" />
+        <button class="button" type="submit">{t(lang, 'signatures.searchButton')}</button>
+        <p class="field-hint" id="q-hint">{t(lang, 'signatures.searchHint')}</p>
+      </form>
+    )
+  }
   {
     items.length > 0 ? (
       <>

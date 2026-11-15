@@ -58,7 +58,8 @@ test('searching an affiliation narrows the list; a search with no match says so'
     { displayName: `Ada ${t}`, affiliation: `Analytical Engines ${t}` },
     { displayName: `Grace ${t}`, affiliation: `Navy ${t}` },
   ]);
-  await page.goto('/en/signatures');
+  // A search link shows the box even below the 51 signatures that bring it up on its own.
+  await page.goto(`/en/signatures?q=${t}`);
   await page.getByLabel('Search').fill(`Navy ${t}`);
   await page.getByRole('button', { name: 'Search' }).click();
   await expect(page).toHaveURL(/\/en\/signatures\?q=/);

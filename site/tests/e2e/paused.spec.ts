@@ -11,10 +11,23 @@ test('the homepage says signing opens soon instead of showing the button', async
   await page.goto('/en/');
   await expect(page.getByText('Signing opens soon', { exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Sign the manifesto' })).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Read the full text' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Read the manifesto' })).toBeVisible();
   // No invitation to be the first while nobody can sign.
   await expect(page.getByText('Be the first to sign.')).toHaveCount(0);
   await expect(page.locator('.home-count')).toHaveCount(0);
+});
+
+test('the manifesto page says signing opens soon instead of the Sign button', async ({ page }) => {
+  await page.goto('/en/manifesto');
+  await expect(page.locator('.manifesto-sign')).toContainText('Signing opens soon');
+  await expect(page.getByRole('link', { name: 'Sign the manifesto' })).toHaveCount(0);
+});
+
+test('the signatures page has no search box while there are 50 signatures or fewer', async ({
+  page,
+}) => {
+  await page.goto('/en/signatures');
+  await expect(page.getByRole('search')).toHaveCount(0);
 });
 
 test('the sign and withdraw pages show the paused notice and no form', async ({ page }) => {
