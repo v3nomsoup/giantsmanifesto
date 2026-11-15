@@ -10,7 +10,14 @@ const publicPages = [
   '/en/imprint',
 ];
 
-const signingPages = ['/en/sign/check-email', '/en/sign/confirm?token=nope', '/en/sign/thanks'];
+const signingPages = [
+  '/en/sign/check-email',
+  '/en/sign/confirm?token=nope',
+  '/en/sign/thanks',
+  '/en/withdraw/check-email',
+  '/en/withdraw/confirm?token=nope',
+  '/en/withdraw/done',
+];
 
 const bodyBg = (page: import('@playwright/test').Page) =>
   page.evaluate(() => getComputedStyle(document.body).backgroundColor);
@@ -95,6 +102,8 @@ test('no request leaves our origin', async ({ page, baseURL }) => {
   }
   // The sign form loads the ALTCHA widget, fetches a challenge and solves it in workers.
   await page.goto('/en/sign');
+  await solveAltcha(page);
+  await page.goto('/en/withdraw');
   await solveAltcha(page);
   const notFound = await page.goto('/en/nope');
   expect(notFound?.status()).toBe(404);

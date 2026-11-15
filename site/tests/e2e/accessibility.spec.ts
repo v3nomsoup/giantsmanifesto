@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import { fillSignForm, solveAltcha, submitSignForm } from './signing';
+import { fillSignForm, seedWithdrawLink, solveAltcha, submitSignForm } from './signing';
 
 const publicPages = [
   '/en/',
@@ -14,6 +14,10 @@ const publicPages = [
   '/en/sign/confirm?token=nope',
   '/en/sign/thanks',
   '/en/sign/thanks?already=1',
+  '/en/withdraw',
+  '/en/withdraw/check-email',
+  '/en/withdraw/confirm?token=nope',
+  '/en/withdraw/done',
 ];
 
 /** The sign form after a submission with errors in several fields. */
@@ -43,6 +47,15 @@ for (const colorScheme of ['light', 'dark'] as const) {
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations).toEqual([]);
     });
+
+    test('the withdraw confirm page with a valid link has no accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto(seedWithdrawLink());
+      await expect(page.getByRole('button', { name: 'Delete my signature' })).toBeVisible();
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
   });
 }
 
@@ -59,6 +72,16 @@ for (const theme of ['light', 'dark'] as const) {
     test('the sign form with errors has no accessibility violations', async ({ page }) => {
       await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
       await showSignFormErrors(page);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
+
+    test('the withdraw confirm page with a valid link has no accessibility violations', async ({
+      page,
+    }) => {
+      await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
+      await page.goto(seedWithdrawLink());
+      await expect(page.getByRole('button', { name: 'Delete my signature' })).toBeVisible();
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations).toEqual([]);
     });

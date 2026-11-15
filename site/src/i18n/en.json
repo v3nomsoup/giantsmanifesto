@@ -140,7 +140,36 @@
       "already": "You have already signed.",
       "alreadyText": "This email address was used to sign before, so your existing signature stays as it is."
     },
-    "allSignatures": "See all signatures"
+    "allSignatures": "See all signatures",
+    "withdrawLink": "Withdraw your signature"
+  },
+  "withdraw": {
+    "title": "Withdraw your signature",
+    "intro": "Enter the email address you signed with. If a signature exists for it, we send you a link to delete it. Your email address is not stored in readable form.",
+    "email": "Email address",
+    "submit": "Send me a link",
+    "paused": "Withdrawing opens soon, together with signing.",
+    "checkEmail": {
+      "title": "Check your email",
+      "text": "If a signature exists for this address, we sent a link to withdraw it. The link is valid for 48 hours.",
+      "spam": "Nothing there after a few minutes? Check your spam folder, or try again."
+    },
+    "confirm": {
+      "title": "Delete your signature",
+      "intro": "This is the signature that will be deleted. It disappears from the list as soon as you confirm.",
+      "button": "Delete my signature",
+      "used": "This link was already used.",
+      "usedText": "Each withdrawal link works once. If you used it, your signature is gone from the list.",
+      "invalid": "This link is not valid or has expired.",
+      "invalidText": "Withdrawal links are valid for 48 hours.",
+      "again": "Request a new link",
+      "none": "There is no signature for this address any more.",
+      "noneText": "It may have been deleted already. Nothing is left to withdraw."
+    },
+    "done": {
+      "title": "Your signature is deleted",
+      "text": "It is no longer in the list of signatures. You can sign again at any time."
+    }
   },
   "error": {
     "title": "Something went wrong",

@@ -2,7 +2,9 @@ import { randomBytes } from 'node:crypto';
 import { expect, type Page } from '@playwright/test';
 import { type Db, openDb } from '../../src/lib/db';
 import { mailQueue } from '../../src/lib/db/schema';
-import { listSignatures } from '../../src/lib/signatures';
+import { hashEmail } from '../../src/lib/email';
+import { createEmailSignature, findByEmailHash, listSignatures } from '../../src/lib/signatures';
+import { createToken } from '../../src/lib/tokens';
 import { E2E_DATA_DIR, E2E_SITE_URL } from './env';
 import { latestMailTo } from './mailpit';
 
@@ -64,6 +66,61 @@ export const publicSignatureNames = (query: string) =>
   withE2eDb((db) =>
     listSignatures(db, { query, page: 1, pageSize: 50 }).items.map((s) => s.displayName),
   );
+
+/** Seeds a signature and a valid withdraw link directly, for tests that only need the page. */
+export function seedWithdrawLink({ withSignature = true } = {}): string {
+  const signer = uniqueSigner('seed');
+  return withE2eDb((db) => {
+    const emailHash = hashEmail(signer.email);
+    if (withSignature) {
+      createEmailSignature(db, {
+        displayName: signer.name,
+        affiliation: 'Analytical Engines',
+        country: 'GB',
+        emailHash,
+        manifestoVersion: '1',
+        consentAt: Date.now(),
+      });
+    }
+    return `/en/withdraw/confirm?token=${createToken(db, 'withdraw', { emailHash })}`;
+  });
+}
+
+export const findSignature = (email: string) =>
+  withE2eDb((db) => findByEmailHash(db, hashEmail(email)));
+
+/** Signs through the form and the mail link, so the address ends up in the list. */
+export async function signAndConfirm(page: Page, signer: { name: string; email: string }) {
+  await fillSignForm(page, signer);
+  await solveAltcha(page);
+  await submitSignForm(page);
+  await expect(page).toHaveURL(/\/en\/sign\/check-email$/);
+  const mail = await confirmPathFromMail(signer.email);
+  await page.goto(mail.path);
+  await page.getByRole('button', { name: 'Confirm signature' }).click();
+  await expect(page).toHaveURL(/\/en\/sign\/thanks$/);
+  return mail.id;
+}
+
+export async function fillWithdrawForm(page: Page, email: string) {
+  await page.goto('/en/withdraw');
+  await page.getByLabel('Email address').fill(email);
+}
+
+export async function submitWithdrawForm(page: Page) {
+  await page.getByRole('button', { name: 'Send me a link' }).click();
+}
+
+/** Waits for the withdraw mail and returns the link's path and query on our origin. */
+export async function withdrawPathFromMail(email: string, ignore: string[] = []) {
+  const mail = await latestMailTo(email.toLowerCase(), { ignore });
+  expect(mail.subject).toBe('Withdraw your signature');
+  const match = mail.text.match(/https:\/\/\S+\/en\/withdraw\/confirm\?token=[A-Za-z0-9_-]+/);
+  expect(match, 'withdraw link in the mail').not.toBeNull();
+  const url = new URL(match?.[0] ?? '');
+  expect(url.origin).toBe(E2E_SITE_URL);
+  return { id: mail.id, path: `${url.pathname}${url.search}` };
+}
 
 export const queuedMailCount = (address: string) =>
   withE2eDb(

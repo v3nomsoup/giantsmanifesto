@@ -1,0 +1,15 @@
+---
+import { isLocale, t } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+
+export const prerender = false;
+
+const lang = Astro.params.lang;
+if (!isLocale(lang)) return new Response(null, { status: 404 });
+---
+
+<Base lang={lang} title={t(lang, 'withdraw.checkEmail.title')} noindex>
+  <h1>{t(lang, 'withdraw.checkEmail.title')}</h1>
+  <p>{t(lang, 'withdraw.checkEmail.text')}</p>
+  <p>{t(lang, 'withdraw.checkEmail.spam')}</p>
+</Base>
