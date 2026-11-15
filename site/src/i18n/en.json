@@ -68,6 +68,23 @@
       "ignore": "If this wasn't you, ignore this email; nothing will change."
     }
   },
+  "altcha": {
+    "label": "I'm not a robot",
+    "verifying": "Verifying...",
+    "verified": "Verified",
+    "error": "Verification failed. Try again later.",
+    "expired": "Verification expired. Try again.",
+    "verificationRequired": "Verification required!",
+    "waitAlert": "Verifying... please wait.",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "reload": "Reload",
+    "verify": "Verify",
+    "ariaLinkLabel": "ALTCHA"
+  },
+  "honeypot": {
+    "label": "Leave this field empty"
+  },
   "notFound": {
     "title": "Page not found",
     "text": "This page does not exist.",

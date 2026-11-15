@@ -495,3 +495,25 @@ section + section {
 :root[data-theme="dark"] .theme-toggle .icon-moon {
   display: none;
 }
+
+/* Honeypot: off-screen rather than display:none, which many bots skip. */
+.hp-field {
+  position: absolute;
+  left: -999rem;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ALTCHA widget, mapped to the site tokens so it follows the theme. */
+altcha-widget {
+  --altcha-color-base: var(--bg);
+  --altcha-color-base-content: var(--fg);
+  --altcha-color-neutral: var(--surface);
+  --altcha-color-neutral-content: var(--fg);
+  --altcha-color-primary: var(--accent);
+  --altcha-color-primary-content: var(--bg);
+  --altcha-border-color: var(--line);
+  --altcha-max-width: 20rem;
+  font-family: var(--font-ui);
+}
